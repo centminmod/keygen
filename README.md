@@ -1,5 +1,28 @@
 ssh private rsa or ecdsa key pair generator
 
+example for ssh-keygen with ed25519 ciphers on CentOS 6.7 with OpenSSH 5.3 updated to OpenSSH 7.1p1
+
+    ssh-keygen $KEYOPT -N "" -f ~/.ssh/${KEYNAME}.key
+
+    Generating public/private ed25519 key pair.
+    Created directory '/root/.ssh'.
+    Your identification has been saved in /root/.ssh/my1.key.
+    Your public key has been saved in /root/.ssh/my1.key.pub.
+    The key fingerprint is:
+    SHA256:6ZpM8wtpqGtOMMZgYyEuLNHCQKTY/eMynLAyRqj9/cY root@hostname
+    The key's randomart image is:
+    +--[ED25519 256]--+
+    |O=               |
+    |B+o.             |
+    |*B. .            |
+    |O .  .   .       |
+    |++.   o S        |
+    |++ + + +         |
+    |+.+ * B..        |
+    |.+.o B *E        |
+    | o+.. =o+.       |
+    +----[SHA256]-----+
+
 example ecdsa key connection to REMOTEIP
 
     ssh $remoteuser@$remotehost -p $remoteport -i ~/.ssh/${KEYNAME}.key -v
