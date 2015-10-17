@@ -12,6 +12,9 @@ if [[ "$KEYTYPE" = 'rsa' ]]; then
     KEYOPT='-t rsa'
 elif [[ "$KEYTYPE" = 'ecdsa' ]]; then
     KEYOPT='-t ecdsa -b 521'
+elif [[ "$KEYTYPE" = 'ed25519' ]]; then
+    # openssh 6.7+ supports curve25519-sha256 cipher
+    KEYOPT='-t ed25519'    
 fi
 
 ################################################################
