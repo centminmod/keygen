@@ -1,15 +1,26 @@
 #!/bin/bash
 ################################################################
 # ssh private key pair generator for centminmod.com lemp stacks
+# 
+# http://crypto.stackexchange.com/questions/2482/how-strong-is-the-ecdsa-algorithm
 ################################################################
+# ssh-keygen -t rsa or ecdsa
+KEYTYPE='rsa'
 KEYNAME='my1'
+################################################################
+if [[ "$KEYTYPE" = 'rsa' ]]; then
+    KEYOPT='-t rsa'
+elif [[ "$KEYTYPE" = 'ecdsa' ]]; then
+    KEYOPT='-t ecdsa -b 521'
+fi
 
+################################################################
 keygen() {
     echo
     echo "-------------------------------------------------------------------"
     echo "Generating Private Key Pair..."
     echo "-------------------------------------------------------------------"
-    ssh-keygen -t rsa -N "" -f ~/.ssh/${KEYNAME}.key
+    ssh-keygen $KEYOPT -N "" -f ~/.ssh/${KEYNAME}.key
 
     echo
     echo "-------------------------------------------------------------------"
