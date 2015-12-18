@@ -23,7 +23,12 @@ keygen() {
     echo "-------------------------------------------------------------------"
     echo "Generating Private Key Pair..."
     echo "-------------------------------------------------------------------"
-    ssh-keygen $KEYOPT -N "" -f ~/.ssh/${KEYNAME}.key
+    while [ -f "$HOME/.ssh/${KEYNAME}.key" ]; do
+        NUM=$(echo $KEYNAME | awk -F 'y' '{print $2}')
+        INCREMENT=$(echo $(($NUM+1)))
+        KEYNAME="my${INCREMENT}"
+    done
+    ssh-keygen $KEYOPT -N "" -f ~/.ssh/${KEYNAME}.key    
 
     echo
     echo "-------------------------------------------------------------------"
