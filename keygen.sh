@@ -11,16 +11,6 @@ KEYNAME='my1'
 RSA_KEYLENTGH='4096'
 ECDSA_KEYLENTGH='256'
 ################################################################
-if [[ "$KEYTYPE" = 'rsa' ]]; then
-    KEYOPT="-t rsa -b $RSA_KEYLENTGH"
-elif [[ "$KEYTYPE" = 'ecdsa' ]]; then
-    KEYOPT="-t ecdsa -b $ECDSA_KEYLENTGH"
-elif [[ "$KEYTYPE" = 'ed25519' ]]; then
-    # openssh 6.7+ supports curve25519-sha256 cipher
-    KEYOPT='-t ed25519'    
-fi
-
-################################################################
 
 if [ ! -d ~/.ssh ]; then
   mkdir -p ~/.ssh
@@ -28,6 +18,28 @@ if [ ! -d ~/.ssh ]; then
 fi
 
 keygen() {
+    _keytype=$1
+    if [[ "$_keytype" = 'rsa' ]]; then
+      KEYTYPE="$_keytype"
+      KEYOPT="-t rsa -b $RSA_KEYLENTGH"
+    elif [[ "$_keytype" = 'ecdsa' ]]; then
+      KEYTYPE="$_keytype"
+      KEYOPT="-t ecdsa -b $ECDSA_KEYLENTGH"
+    elif [[ "$_keytype" = 'ed25519' ]]; then
+      # openssh 6.7+ supports curve25519-sha256 cipher
+      KEYTYPE="$_keytype"
+      KEYOPT='-t ed25519'
+    elif [[ -z "$_keytype" ]]; then
+      KEYTYPE="$KEYTYPE"
+        if [[ "$KEYTYPE" = 'rsa' ]]; then
+            KEYOPT="-t rsa -b $RSA_KEYLENTGH"
+        elif [[ "$KEYTYPE" = 'ecdsa' ]]; then
+            KEYOPT="-t ecdsa -b $ECDSA_KEYLENTGH"
+        elif [[ "$KEYTYPE" = 'ed25519' ]]; then
+            # openssh 6.7+ supports curve25519-sha256 cipher
+            KEYOPT='-t ed25519'    
+        fi
+    fi
     echo
     echo "-------------------------------------------------------------------"
     echo "Generating Private Key Pair..."
@@ -44,7 +56,13 @@ keygen() {
     echo "-------------------------------------------------------------------"
     echo "${KEYNAME}.key.pub public key"
     echo "-------------------------------------------------------------------"
-    cat "~/.ssh/${KEYNAME}.key.pub"
+    echo "ssh-keygen -lf ~/.ssh/${KEYNAME}.key.pub"
+    echo "[size --------------- fingerprint ---------------    - comment - type]"
+    ssh-keygen -lf ~/.ssh/${KEYNAME}.key.pub
+    
+    echo
+    echo "cat ~/.ssh/${KEYNAME}.key.pub"
+    cat ~/.ssh/${KEYNAME}.key.pub
     
     echo
     echo "-------------------------------------------------------------------"
