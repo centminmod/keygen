@@ -1,3 +1,18 @@
+unattended mode
+
+generata rsa key pair
+
+    keygen.sh gen rsa 1.1.1.1 22 root comment
+
+generate ecdsa key pair
+
+    keygen.sh gen ecdsa 1.1.1.1 22 root comment
+
+generate ed25519 key pair
+
+    keygen.sh gen ed25519 1.1.1.1 22 root comment
+
+
 ssh private rsa or ecdsa key pair generator
 
 example for ssh-keygen with ed25519 ciphers on CentOS 6.7 with OpenSSH 5.3 updated to OpenSSH 7.1p1
