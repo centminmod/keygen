@@ -1,3 +1,11 @@
+usage
+
+    ./keygen.sh
+    keygen.sh {gen}
+    keygen.sh {gen} keytype remoteip remoteport remoteuser keycomment
+    
+    keytype supported: rsa, ecdsa, ed25519
+
 unattended mode
 
 generata rsa key pair
