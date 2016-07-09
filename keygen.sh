@@ -18,18 +18,22 @@ if [ ! -d ~/.ssh ]; then
 fi
 
 keygen() {
-    _keytype=$1
-    if [[ "$_keytype" = 'rsa' ]]; then
-      KEYTYPE="$_keytype"
+    _keytype=$_input_keytype
+    _remoteh=$_input_remoteh
+    _remotep=$_input_remotep
+    _remoteu=$_input_remoteu
+    _comment=$_input_comment
+    if [[ $_keytype = 'rsa' ]]; then
+      KEYTYPE=$_keytype
       KEYOPT="-t rsa -b $RSA_KEYLENTGH"
-    elif [[ "$_keytype" = 'ecdsa' ]]; then
-      KEYTYPE="$_keytype"
+    elif [[ $_keytype = 'ecdsa' ]]; then
+      KEYTYPE=$_keytype
       KEYOPT="-t ecdsa -b $ECDSA_KEYLENTGH"
-    elif [[ "$_keytype" = 'ed25519' ]]; then
+    elif [[ $_keytype = 'ed25519' ]]; then
       # openssh 6.7+ supports curve25519-sha256 cipher
-      KEYTYPE="$_keytype"
+      KEYTYPE=$_keytype
       KEYOPT='-t ed25519'
-    elif [[ -z "$_keytype" ]]; then
+    elif [ -z $_keytype ]; then
       KEYTYPE="$KEYTYPE"
         if [[ "$KEYTYPE" = 'rsa' ]]; then
             KEYOPT="-t rsa -b $RSA_KEYLENTGH"
@@ -49,7 +53,12 @@ keygen() {
         INCREMENT=$(echo $(($NUM+1)))
         KEYNAME="my${INCREMENT}"
     done
-    read -ep "enter comment description for key: " keycomment
+    if [ -z $_comment ]; then
+      read -ep "enter comment description for key: " keycomment
+    else
+      keycomment=$_comment
+    fi
+    echo "ssh-keygen $KEYOPT -N "" -f ~/.ssh/${KEYNAME}.key -C "$keycomment""
     ssh-keygen $KEYOPT -N "" -f ~/.ssh/${KEYNAME}.key -C "$keycomment"
 
     echo
@@ -74,9 +83,21 @@ keygen() {
     echo "-------------------------------------------------------------------"
     echo "transfering ${KEYNAME}.key.pub to remote host"
     echo "-------------------------------------------------------------------"
-    read -ep "enter remote ip address or hostname: " remotehost
-    read -ep "enter remote ip/host port number i.e. 22: " remoteport
-    read -ep "enter remote ip/host username i.e. root: " remoteuser
+    if [ -z $_remoteh ]; then
+      read -ep "enter remote ip address or hostname: " remotehost
+    else
+      remotehost=$_remoteh
+    fi
+    if [ -z $_remotep ]; then
+      read -ep "enter remote ip/host port number i.e. 22: " remoteport
+    else
+      remoteport=$_remotep
+    fi
+    if [ -z $_remoteu ]; then
+      read -ep "enter remote ip/host username i.e. root: " remoteuser
+    else
+      remoteuser=$_remoteu
+    fi
 
     if [[ "$(ping -c1 $remotehost -W 2 >/dev/null 2>&1; echo $?)" = '0' ]]; then
         VALIDREMOTE=y
@@ -110,4 +131,19 @@ keygen() {
     echo "-------------------------------------------------------------------"
 }
 
-keygen
+case "$1" in
+    gen )
+    _input_keytype=$2
+    _input_remoteh=$3
+    _input_remotep=$4
+    _input_remoteu=$5
+    _input_comment=$6
+    keygen
+        ;;
+    * )
+    echo "  $0 {gen}"
+    echo "  $0 {gen} keytype remoteip remoteport remoteuser keycomment"
+    echo
+    echo "  keytype supported: rsa, ecdsa, ed25519"
+        ;;
+esac
