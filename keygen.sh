@@ -66,8 +66,8 @@ keygen() {
     echo "${KEYNAME}.key.pub public key"
     echo "-------------------------------------------------------------------"
     echo "ssh-keygen -lf ~/.ssh/${KEYNAME}.key.pub"
-    echo "[size --------------- fingerprint ---------------    - comment - type]"
-    ssh-keygen -lf ~/.ssh/${KEYNAME}.key.pub
+    echo "[size --------------- fingerprint ---------------     - comment - type]"
+    echo " $(ssh-keygen -lf ~/.ssh/${KEYNAME}.key.pub)"
     
     echo
     echo "cat ~/.ssh/${KEYNAME}.key.pub"
