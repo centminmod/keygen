@@ -1,4 +1,5 @@
 usage
+===
 
     ./keygen.sh
     keygen.sh {gen}
@@ -7,21 +8,42 @@ usage
     keytype supported: rsa, ecdsa, ed25519
 
 unattended mode
+===
 
-generata rsa key pair
+Running unattended mode will also attempt to copy the generated public key over to the defined remote server's `/root/.ssh/authorized_keys` file so prompt you to do a one time login to the remote server via the password. Then it will do a test ssh connection to the remote server using the newly generated key pair.
+
+You'll end up with private and public key files named my`X` where `X` is a number which would increment automatically if you re-run this command on same server.
+
+* private key at `/root/.ssh/my1.key`
+* public key at `/root/.ssh/my1.key.pub`
+
+To generate rsa key pair where comment is a unique identifier for your generated key i.e. `mykey`
 
     keygen.sh gen rsa 1.1.1.1 22 root comment
 
-generate ecdsa key pair
+To generate ecdsa key pair where comment is a unique identifier for your generated key i.e. mykey
 
     keygen.sh gen ecdsa 1.1.1.1 22 root comment
 
-generate ed25519 key pair
+To generate ed25519 key pair where comment is a unique identifier for your generated key i.e. mykey
 
     keygen.sh gen ed25519 1.1.1.1 22 root comment
 
+Once run is complete, you'll now be able to ssh into remote server with just specifying the path to your private key you generated
 
-ssh private rsa or ecdsa key pair generator
+    ssh root@remoteip -p 22 -i ~/.ssh/my1.key
+
+Removing public key from remote server
+===
+
+To revoke a public key from your remote server so that the source data server can not connect to the remote server anymore, you need to remove the generated public key from remote server's `/root/.ssh/authorized_keys` file. You can use the comment i.e. `mykey` as a filter for sed deletion of the line.
+
+On remote server run command where `mykey` is your comment you specified when you generated your key pair.
+
+    sed -i '/mykey$/d' /root/.ssh/authorized_keys 
+
+Examples for SSH private RSA or ECDSA key pair generator
+===
 
 example for ssh-keygen with ed25519 ciphers on CentOS 6.7 with OpenSSH 5.3 updated to OpenSSH 7.1p1
 
@@ -46,7 +68,8 @@ example for ssh-keygen with ed25519 ciphers on CentOS 6.7 with OpenSSH 5.3 updat
     | o+.. =o+.       |
     +----[SHA256]-----+
 
-example ecdsa key connection to REMOTEIP
+Example ecdsa key connection to REMOTEIP
+===
 
     ssh $remoteuser@$remotehost -p $remoteport -i ~/.ssh/${KEYNAME}.key -v
     
