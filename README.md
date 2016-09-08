@@ -21,11 +21,11 @@ To generate rsa key pair where comment is a unique identifier for your generated
 
     keygen.sh gen rsa 1.1.1.1 22 root comment
 
-To generate ecdsa key pair where comment is a unique identifier for your generated key i.e. mykey
+To generate ecdsa key pair where comment is a unique identifier for your generated key i.e. `mykey`
 
     keygen.sh gen ecdsa 1.1.1.1 22 root comment
 
-To generate ed25519 key pair where comment is a unique identifier for your generated key i.e. mykey
+To generate ed25519 key pair where comment is a unique identifier for your generated key i.e. `mykey`
 
     keygen.sh gen ed25519 1.1.1.1 22 root comment
 
