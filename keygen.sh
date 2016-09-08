@@ -113,19 +113,22 @@ keygen() {
     echo "-------------------------------------------------------------------"
     echo 
     fi
-    echo "ssh-copy-id -i ~/.ssh/${KEYNAME}.key $remoteuser@$remotehost -p $remoteport"
+    echo "ssh-copy-id -i ~/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
     if [[ "$VALIDREMOTE" = 'y' ]]; then
-      ssh-copy-id -i "~/.ssh/${KEYNAME}.key" "$remoteuser@$remotehost" -p "$remoteport"
+      pushd ~/.ssh/ >/dev/null 2>&1
+      ssh-copy-id -i ~/.ssh/${KEYNAME}.key.pub "$remoteuser@$remotehost" -p "$remoteport"
+      SSHCOPYERR=$?
+      popd >/dev/null 2>&1
     fi
 
-    if [[ "$VALIDREMOTE" = 'y' ]]; then
+    if [[ "$VALIDREMOTE" = 'y' && "$SSHCOPYERR" = '0' ]]; then
       echo
       echo "-------------------------------------------------------------------"
       echo "testing connection"
       echo "-------------------------------------------------------------------"
       echo
       echo "ssh $remoteuser@$remotehost -p $remoteport -i ~/.ssh/${KEYNAME}.key"
-      ssh "$remoteuser@$remotehost" -p "$remoteport" -i "~/.ssh/${KEYNAME}.key"
+      ssh "$remoteuser@$remotehost" -p "$remoteport" -i ~/.ssh/${KEYNAME}.key
     fi
     echo
     echo "-------------------------------------------------------------------"
