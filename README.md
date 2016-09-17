@@ -17,15 +17,15 @@ You'll end up with private and public key files named my`X` where `X` is a numbe
 * private key at `/root/.ssh/my1.key`
 * public key at `/root/.ssh/my1.key.pub`
 
-To generate rsa key pair where comment is a unique identifier for your generated key i.e. `mykey`
+To generate rsa key pair where `comment` is a unique identifier for your generated key i.e. `mykey@clienthostname`
 
     keygen.sh gen rsa 1.1.1.1 22 root comment
 
-To generate ecdsa key pair where comment is a unique identifier for your generated key i.e. `mykey`
+To generate ecdsa key pair where `comment` is a unique identifier for your generated key i.e. `mykey@clienthostname`
 
     keygen.sh gen ecdsa 1.1.1.1 22 root comment
 
-To generate ed25519 key pair where comment is a unique identifier for your generated key i.e. `mykey`
+To generate ed25519 key pair where `comment` is a unique identifier for your generated key i.e. `mykey@clienthostname`
 
     keygen.sh gen ed25519 1.1.1.1 22 root comment
 
@@ -36,11 +36,11 @@ Once run is complete, you'll now be able to ssh into remote server with just spe
 Removing public key from remote server
 ===
 
-To revoke a public key from your remote server so that the source data server can not connect to the remote server anymore, you need to remove the generated public key from remote server's `/root/.ssh/authorized_keys` file. You can use the comment i.e. `mykey` as a filter for sed deletion of the line.
+To revoke a public key from your remote server so that the source data server can not connect to the remote server anymore, you need to remove the generated public key from remote server's `/root/.ssh/authorized_keys` file. You can use the comment i.e. `mykey@clienthostname` as a filter for sed deletion of the line.
 
-On remote server run command where `mykey` is your comment you specified when you generated your key pair.
+On remote server run command where `mykey@clienthostname` is your comment you specified when you generated your key pair.
 
-    sed -i '/mykey$/d' /root/.ssh/authorized_keys 
+    sed -i '/mykey@clienthostname$/d' /root/.ssh/authorized_keys 
 
 Examples for SSH private RSA or ECDSA key pair generator
 ===
