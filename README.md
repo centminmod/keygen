@@ -26,7 +26,7 @@ Where:
 * `1.1.1.1` is remote server IP
 * `22` is remote server SSH port
 * `root` is username for remote SSH user
-* comment is unique identifying name i.e. `mykey@clienthostname`
+* `comment` is unique identifying name i.e. `mykey@clienthostname`
 * `remotessh_password` for SSH user password,
 
 To generate rsa key pair where `comment` is a unique identifier for your generated key i.e. `mykey@clienthostname` and you pass the remote SSH user's SSH password via `remotessh_password` at `ssh-copy-id` step
