@@ -25,6 +25,7 @@ Where:
 
 * `1.1.1.1` is remote server IP
 * `22` is remote server SSH port
+* `root` is username for remote SSH user
 * comment is unique identifying name i.e. `mykey@clienthostname`
 * `remotessh_password` for SSH user password,
 
