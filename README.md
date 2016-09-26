@@ -41,7 +41,7 @@ Once run is complete, you'll now be able to ssh into remote server with just spe
 
     ssh root@remoteip -p 22 -i ~/.ssh/my1.key
 
-Output also lists instructions for setting up ~/.ssh/config for Shell aliases
+Output also lists instructions for setting up `~/.ssh/config` for Shell aliases
 
     -------------------------------------------------------------------
     Setup source server file /root/.ssh/config
@@ -74,6 +74,8 @@ To revoke a public key from your remote server so that the source data server ca
 On remote server run command where `mykey@clienthostname` is your comment you specified when you generated your key pair.
 
     sed -i '/mykey@clienthostname$/d' /root/.ssh/authorized_keys 
+
+If you setup a SSH aliase in `~/.ssh/config`, then you also need to remove the entry for `mykey@clienthostname`
 
 Examples for SSH private RSA or ECDSA key pair generator
 ===
