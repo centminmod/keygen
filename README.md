@@ -1,5 +1,7 @@
-usage where remote server's SSH password is optionally set via `remotessh_password`
+usage
 ===
+
+where remote server's SSH password is optionally set via `remotessh_password`
 
     ./keygen.sh
     keygen.sh {gen}
