@@ -12,9 +12,9 @@ RSA_KEYLENTGH='4096'
 ECDSA_KEYLENTGH='256'
 ################################################################
 
-if [ ! -d ~/.ssh ]; then
-  mkdir -p ~/.ssh
-  chmod 700 ~/.ssh
+if [ ! -d "$HOME/.ssh" ]; then
+  mkdir -p "$HOME/.ssh"
+  chmod 700 "$HOME/.ssh"
 fi
 
 keygen() {
@@ -58,30 +58,30 @@ keygen() {
     else
       keycomment=$_comment
     fi
-    echo "ssh-keygen $KEYOPT -N "" -f ~/.ssh/${KEYNAME}.key -C "$keycomment""
-    ssh-keygen $KEYOPT -N "" -f ~/.ssh/${KEYNAME}.key -C "$keycomment"
+    echo "ssh-keygen $KEYOPT -N "" -f $HOME/.ssh/${KEYNAME}.key -C "$keycomment""
+    ssh-keygen $KEYOPT -N "" -f $HOME/.ssh/${KEYNAME}.key -C "$keycomment"
 
     echo
     echo "-------------------------------------------------------------------"
     echo "${KEYNAME}.key.pub public key"
     echo "-------------------------------------------------------------------"
-    echo "ssh-keygen -lf ~/.ssh/${KEYNAME}.key.pub"
+    echo "ssh-keygen -lf $HOME/.ssh/${KEYNAME}.key.pub"
     echo "[size --------------- fingerprint ---------------     - comment - type]"
-    echo " $(ssh-keygen -lf ~/.ssh/${KEYNAME}.key.pub)"
+    echo " $(ssh-keygen -lf $HOME/.ssh/${KEYNAME}.key.pub)"
     
     echo
-    echo "cat ~/.ssh/${KEYNAME}.key.pub"
-    cat ~/.ssh/${KEYNAME}.key.pub
+    echo "cat $HOME/.ssh/${KEYNAME}.key.pub"
+    cat "$HOME/.ssh/${KEYNAME}.key.pub"
     
     echo
     echo "-------------------------------------------------------------------"
-    echo "~/.ssh contents" 
+    echo "$HOME/.ssh contents" 
     echo "-------------------------------------------------------------------"
-    ls -lahrt ~/.ssh
+    ls -lahrt "$HOME/.ssh"
 
     echo
     echo "-------------------------------------------------------------------"
-    echo "transfering ${KEYNAME}.key.pub to remote host"
+    echo "Transfering ${KEYNAME}.key.pub to remote host"
     echo "-------------------------------------------------------------------"
     if [ -z $_remoteh ]; then
       read -ep "enter remote ip address or hostname: " remotehost
@@ -113,10 +113,10 @@ keygen() {
     echo "-------------------------------------------------------------------"
     echo 
     fi
-    echo "ssh-copy-id -i ~/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
+    echo "ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
     if [[ "$VALIDREMOTE" = 'y' ]]; then
-      pushd ~/.ssh/ >/dev/null 2>&1
-      ssh-copy-id -i ~/.ssh/${KEYNAME}.key.pub "$remoteuser@$remotehost" -p "$remoteport"
+      pushd "$HOME/.ssh" >/dev/null 2>&1
+      ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub "$remoteuser@$remotehost" -p "$remoteport"
       SSHCOPYERR=$?
       popd >/dev/null 2>&1
     fi
@@ -124,11 +124,31 @@ keygen() {
     if [[ "$VALIDREMOTE" = 'y' && "$SSHCOPYERR" = '0' ]]; then
       echo
       echo "-------------------------------------------------------------------"
-      echo "testing connection"
+      echo "Testing connection"
       echo "-------------------------------------------------------------------"
       echo
-      echo "ssh $remoteuser@$remotehost -p $remoteport -i ~/.ssh/${KEYNAME}.key"
-      ssh "$remoteuser@$remotehost" -p "$remoteport" -i ~/.ssh/${KEYNAME}.key
+      echo "ssh $remoteuser@$remotehost -p $remoteport -i $HOME/.ssh/${KEYNAME}.key \"uname -a\""
+      ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}.key "uname -a"
+
+      echo
+      echo "-------------------------------------------------------------------"
+      echo "Setup source server file ${HOME}/.ssh/config"
+      echo "-------------------------------------------------------------------"
+      echo
+      echo "Add to ${HOME}/.ssh/config:"
+      echo
+      echo "Host ${remotehost}-${KEYNAME}"
+      echo "  Hostname $remotehost"
+      echo "  Port $remoteport"
+      echo "  IdentityFile $HOME/.ssh/${KEYNAME}.key"
+      echo "  User $(id -u -n)"
+      echo
+      echo "-------------------------------------------------------------------"
+      echo "Once ${HOME}/.ssh/config entry added, can connect via Host label:"
+      echo " ${remotehost}-${KEYNAME}"
+      echo "-------------------------------------------------------------------"
+      echo
+      echo "ssh ${remotehost}-${KEYNAME}"
     fi
     echo
     echo "-------------------------------------------------------------------"

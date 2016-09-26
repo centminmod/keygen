@@ -33,6 +33,31 @@ Once run is complete, you'll now be able to ssh into remote server with just spe
 
     ssh root@remoteip -p 22 -i ~/.ssh/my1.key
 
+Output also lists instructions for setting up ~/.ssh/config for Shell aliases
+
+    -------------------------------------------------------------------
+    Setup source server file /root/.ssh/config
+    -------------------------------------------------------------------
+    
+    Add to /root/.ssh/config:
+    
+    Host 1.1.1.1-mykey@clienthostname
+      Hostname 1.1.1.1
+      Port 22
+      IdentityFile /root/.ssh/my1.key
+      User root
+    
+    -------------------------------------------------------------------
+    Once /root/.ssh/config entry added, can connect via Host label:
+     1.1.1.1-mykey@clienthostname
+    -------------------------------------------------------------------
+
+    ssh 1.1.1.1-mykey@clienthostname
+
+So you'll be able to ssh into remote server via SSH shell alias for Host label
+
+    ssh 1.1.1.1-mykey@clienthostname
+
 Removing public key from remote server
 ===
 
