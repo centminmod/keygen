@@ -21,6 +21,13 @@ You'll end up with private and public key files named my`X` where `X` is a numbe
 * private key at `$HOME/.ssh/my1.key`
 * public key at `$HOME/.ssh/my1.key.pub`
 
+Where:
+
+* `1.1.1.1` is remote server IP
+* `22` is remote server SSH port
+* comment is unique identifying name i.e. `mykey@clienthostname`
+* `remotessh_password` for SSH user password,
+
 To generate rsa key pair where `comment` is a unique identifier for your generated key i.e. `mykey@clienthostname` and you pass the remote SSH user's SSH password via `remotessh_password` at `ssh-copy-id` step
 
     keygen.sh gen rsa 1.1.1.1 22 root comment remotessh_password
