@@ -12,7 +12,7 @@ where remote server's SSH password is optionally set via `remotessh_password`
 unattended mode
 ===
 
-If `remotessh_password` is for SSH user password is not passed on command line, when it comes to `ssh-copy-id` step you will be prompted for remote SSH user's SSH password for once time only to setup remote server's `authorized_keys` file. If you pass `remotessh_password` on command line, at `ssh-copy-id` step you will not be asked for SSH user's SSH password as `keygen.sh` installs and sets up `sshpass` to handle input for SSH password without user input.
+If you do not pass on command line the last argument for `remotessh_password` for SSH user password, then when you run `keygen.sh` unattended at `ssh-copy-id` step you will be prompted for remote SSH user's SSH password for once time only to setup remote server's `authorized_keys` file. If you pass `remotessh_password` on command line, at `ssh-copy-id` step you will not be asked for SSH user's SSH password as `keygen.sh` installs and sets up `sshpass` to handle input for SSH password without user input.
 
 Running unattended mode will also attempt to copy the generated public key over to the defined remote server's `/root/.ssh/authorized_keys` file so prompt you to do a one time login to the remote server via the password. Then it will do a test ssh connection to the remote server using the newly generated key pair.
 
