@@ -17,12 +17,20 @@ if [ ! -d "$HOME/.ssh" ]; then
   chmod 700 "$HOME/.ssh"
 fi
 
+if [ ! -f /usr/bin/sshpass ]; then
+  yum -q -y install sshpass >/dev/null 2>&1
+  SSHPASS='y'
+elif [ -f /usr/bin/sshpass ]; then
+  SSHPASS='y'
+fi
+
 keygen() {
     _keytype=$_input_keytype
     _remoteh=$_input_remoteh
     _remotep=$_input_remotep
     _remoteu=$_input_remoteu
     _comment=$_input_comment
+    _sshpass=$_input_sshpass
     if [[ $_keytype = 'rsa' ]]; then
       KEYTYPE=$_keytype
       KEYOPT="-t rsa -b $RSA_KEYLENTGH"
@@ -98,7 +106,13 @@ keygen() {
     else
       remoteuser=$_remoteu
     fi
-
+    if [[ "$SSHPASS" = [yY] ]]; then
+      if [ -z $_sshpass ]; then
+        read -ep "enter remote ip/host username SSH password: " sshpassword
+      else
+        sshpassword=$_sshpass
+      fi
+    fi
     if [[ "$(ping -c1 $remotehost -W 2 >/dev/null 2>&1; echo $?)" = '0' ]]; then
         VALIDREMOTE=y
     echo
@@ -113,10 +127,18 @@ keygen() {
     echo "-------------------------------------------------------------------"
     echo 
     fi
-    echo "ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
+    if [[ "$SSHPASS" = [yY] ]]; then
+      echo "sshpass -p "$sshpassword" ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
+    else
+      echo "ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
+    fi
     if [[ "$VALIDREMOTE" = 'y' ]]; then
       pushd "$HOME/.ssh" >/dev/null 2>&1
-      ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub "$remoteuser@$remotehost" -p "$remoteport"
+      if [[ "$SSHPASS" = [yY] ]]; then
+        sshpass -p "$sshpassword" ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub "$remoteuser@$remotehost" -p "$remoteport"
+      else  
+        ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub "$remoteuser@$remotehost" -p "$remoteport"
+      fi
       SSHCOPYERR=$?
       popd >/dev/null 2>&1
     fi
@@ -161,11 +183,12 @@ case "$1" in
     _input_remotep=$4
     _input_remoteu=$5
     _input_comment=$6
+    _input_sshpass=$7
     keygen
         ;;
     * )
     echo "  $0 {gen}"
-    echo "  $0 {gen} keytype remoteip remoteport remoteuser keycomment"
+    echo "  $0 {gen} keytype remoteip remoteport remoteuser keycomment remotessh_password"
     echo
     echo "  keytype supported: rsa, ecdsa, ed25519"
         ;;
