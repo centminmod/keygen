@@ -12,7 +12,7 @@ where remote server's SSH password is optionally set via `remotessh_password`
 unattended mode
 ===
 
-If you do not pass on command line the last argument for `remotessh_password` for SSH user password, then when you run `keygen.sh` unattended at `ssh-copy-id` step you will be prompted for remote SSH user's SSH password for once time only to setup remote server's `authorized_keys` file. If you pass `remotessh_password` on command line, at `ssh-copy-id` step you will not be asked for SSH user's SSH password as `keygen.sh` installs and sets up `sshpass` to handle input for SSH password without user input.
+If you do not pass on command line the last argument for `remotessh_password` for SSH user password, then when you run `keygen.sh` unattended at `ssh-copy-id` step you will be prompted for remote SSH user's SSH password for one time only to setup remote server's `authorized_keys` file. If you pass `remotessh_password` on command line, at `ssh-copy-id` step you will not be asked for SSH user's SSH password as `keygen.sh` installs and sets up `sshpass` to handle input for SSH password without user input.
 
 Running unattended mode will also attempt to copy the generated public key over to the defined remote server's `/root/.ssh/authorized_keys` file so prompt you to do a one time login to the remote server via the password. Then it will do a test ssh connection to the remote server using the newly generated key pair.
 
@@ -25,15 +25,15 @@ To generate rsa key pair where `comment` is a unique identifier for your generat
 
     keygen.sh gen rsa 1.1.1.1 22 root comment remotessh_password
 
-To generate rsa key pair where `comment` is a unique identifier for your generated key i.e. `mykey@clienthostname`
+To generate rsa key pair where `comment` is a unique identifier for your generated key i.e. `mykey@clienthostname` without `remotessh_password`. At `ssh-copy-id` step you will be prompted for remote SSH user's SSH password
 
     keygen.sh gen rsa 1.1.1.1 22 root comment
 
-To generate ecdsa key pair where `comment` is a unique identifier for your generated key i.e. `mykey@clienthostname`
+To generate ecdsa key pair where `comment` is a unique identifier for your generated key i.e. `mykey@clienthostname` without `remotessh_password`. At `ssh-copy-id` step you will be prompted for remote SSH user's SSH password
 
     keygen.sh gen ecdsa 1.1.1.1 22 root comment
 
-To generate ed25519 key pair where `comment` is a unique identifier for your generated key i.e. `mykey@clienthostname`
+To generate ed25519 key pair where `comment` is a unique identifier for your generated key i.e. `mykey@clienthostname` without `remotessh_password`. At `ssh-copy-id` step you will be prompted for remote SSH user's SSH password
 
     keygen.sh gen ed25519 1.1.1.1 22 root comment
 
