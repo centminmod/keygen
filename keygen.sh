@@ -117,13 +117,14 @@ keygen() {
         VALIDREMOTE=y
     echo
     echo "-------------------------------------------------------------------"
-    echo "you'll be prompted for remote ip/host password"
+    echo "you MAYBE prompted for remote ip/host password"
+    echo "enter below command to copy key to remote ip/host"
     echo "-------------------------------------------------------------------"
     echo 
     else
     echo
     echo "-------------------------------------------------------------------"
-    echo "command to copy key to remote ip/host"
+    echo "enter below command to copy key to remote ip/host"
     echo "-------------------------------------------------------------------"
     echo 
     fi
