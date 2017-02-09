@@ -129,14 +129,14 @@ keygen() {
     echo 
     fi
     if [[ "$SSHPASS" = [yY] ]]; then
-      echo "sshpass -p "$sshpassword" ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
+      echo "sshpass -p "$sshpassword" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
     else
       echo "ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
     fi
     if [[ "$VALIDREMOTE" = 'y' ]]; then
       pushd "$HOME/.ssh" >/dev/null 2>&1
       if [[ "$SSHPASS" = [yY] ]]; then
-        sshpass -p "$sshpassword" ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub "$remoteuser@$remotehost" -p "$remoteport"
+        sshpass -p "$sshpassword" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub "$remoteuser@$remotehost" -p "$remoteport"
       else  
         ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub "$remoteuser@$remotehost" -p "$remoteport"
       fi
