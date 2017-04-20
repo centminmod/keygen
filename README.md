@@ -1,12 +1,24 @@
 usage
 ===
 
-where remote server's SSH password is optionally set via `remotessh_password`
+You can use `gen` command to generate SSH key pairs or use `rotatekeys` command to rotate an existing SSH key
 
-    ./keygen.sh
-    keygen.sh {gen}
-    keygen.sh {gen} keytype remoteip remoteport remoteuser keycomment remotessh_password
+Where remote server's SSH password is optionally set via `remotessh_password`
+
+    ./keygen.sh 
+    -------------------------------------------------------------------------
+    ./keygen.sh {gen}
+    ./keygen.sh {gen} keytype remoteip remoteport remoteuser keycomment
     
+    or
+    
+    ./keygen.sh {gen} keytype remoteip remoteport remoteuser keycomment remotessh_password
+    
+    -------------------------------------------------------------------------
+    ./keygen.sh {rotatekeys}
+    ./keygen.sh {rotatekeys} keytype remoteip remoteport remoteuser keycomment keyname
+    
+    -------------------------------------------------------------------------
     keytype supported: rsa, ecdsa, ed25519
 
 unattended mode
@@ -85,81 +97,125 @@ On remote server run command where `mykey@clienthostname` is your comment you sp
 
 If you setup a SSH aliase in `~/.ssh/config`, then you also need to remove the entry for `mykey@clienthostname`
 
-Examples for SSH private RSA or ECDSA key pair generator
+Rotate Existing SSH Key
 ===
 
-example for ssh-keygen with ed25519 ciphers on CentOS 6.7 with OpenSSH 5.3 updated to OpenSSH 7.1p1
+New `rotatekeys` command allows you to rotate an existing SSH key both on local and remote server end. This assumes you are running `keygen.sh` on the same server that initially generated the existing SSH key on the server via `gen` command
 
-    ssh-keygen $KEYOPT -N "" -f ~/.ssh/${KEYNAME}.key
+generated with (where remoter ssh root password = `remotessh_password`)
 
-    Generating public/private ed25519 key pair.
-    Created directory '/root/.ssh'.
+    ./keygen.sh {gen} keytype remoteip remoteport remoteuser keycomment remotessh_password
+
+rotated with
+
+    ./keygen.sh {rotatekeys} keytype remoteip remoteport remoteuser keycomment keyname
+
+**Example:**
+
+generated with (where comment = `mykey@clienthostname` and where remoter ssh root password = `remotessh_password`)
+
+    ./keygen.sh gen rsa 1.1.1.1 22 root mykey@clienthostname remotessh_password
+
+resulting in key = `my1.key` so keyname = `my1`
+
+    -------------------------------------------------------------------
+    /root/.ssh contents
+    -------------------------------------------------------------------
+    total 12K
+    dr-xr-x---. 8 root root 4.0K Apr 20 17:14 ..
+    -rw-------  1 root root 3.2K Apr 20 17:17 my1.key
+    -rw-r--r--  1 root root  736 Apr 20 17:17 my1.key.pub
+    drwx------  2 root root   38 Apr 20 17:17 .
+
+rotated with indentifying keyname = `my1`
+
+    ./keygen.sh rotatekeys rsa 1.1.1.1 22 root mykey@clienthostname my1
+
+full output
+
+    ./keygen.sh rotatekeys rsa 1.1.1.1 22 root mykey@clienthostname my1
+    
+    -------------------------------------------------------------------
+    Rotating Private Key Pair...
+    -------------------------------------------------------------------
+    ssh-keygen -t rsa -b 4096 -N  -f /root/.ssh/my1.key -C my1comment
+    Generating public/private rsa key pair.
     Your identification has been saved in /root/.ssh/my1.key.
     Your public key has been saved in /root/.ssh/my1.key.pub.
     The key fingerprint is:
-    SHA256:6ZpM8wtpqGtOMMZgYyEuLNHCQKTY/eMynLAyRqj9/cY root@hostname
+    9c:8b:f7:74:44:27:79:6b:36:3b:29:e7:98:c2:3f:5e my1comment
     The key's randomart image is:
-    +--[ED25519 256]--+
-    |O=               |
-    |B+o.             |
-    |*B. .            |
-    |O .  .   .       |
-    |++.   o S        |
-    |++ + + +         |
-    |+.+ * B..        |
-    |.+.o B *E        |
-    | o+.. =o+.       |
-    +----[SHA256]-----+
-
-Example ecdsa key connection to REMOTEIP
-===
-
-    ssh $remoteuser@$remotehost -p $remoteport -i ~/.ssh/${KEYNAME}.key -v
+    +--[ RSA 4096]----+
+    |                 |
+    |             .   |
+    |            + o  |
+    |       . . . + . |
+    |        S   . =  |
+    |       . . . o + |
+    |      . o.. o E  |
+    |       . oo..B . |
+    |          .+=..  |
+    +-----------------+
     
-    OpenSSH_6.6.1, OpenSSL 1.0.1e-fips 11 Feb 2013
-    debug1: Reading configuration data /etc/ssh/ssh_config
-    debug1: /etc/ssh/ssh_config line 56: Applying options for *
-    debug1: Connecting to REMOTEIP [REMOTEIP] port 22.
-    debug1: Connection established.
-    debug1: permanently_set_uid: 0/0
-    debug1: identity file /root/.ssh/my1.key type 3
-    debug1: identity file /root/.ssh/my1.key-cert type -1
-    debug1: Enabling compatibility mode for protocol 2.0
-    debug1: Local version string SSH-2.0-OpenSSH_6.6.1
-    debug1: Remote protocol version 2.0, remote software version OpenSSH_5.3
-    debug1: match: OpenSSH_5.3 pat OpenSSH_5* compat 0x0c000000
-    debug1: SSH2_MSG_KEXINIT sent
-    debug1: SSH2_MSG_KEXINIT received
-    debug1: kex: server->client aes128-ctr hmac-md5 none
-    debug1: kex: client->server aes128-ctr hmac-md5 none
-    debug1: kex: diffie-hellman-group-exchange-sha256 need=16 dh_need=16
-    debug1: kex: diffie-hellman-group-exchange-sha256 need=16 dh_need=16
-    debug1: SSH2_MSG_KEX_DH_GEX_REQUEST(1024<3072<8192) sent
-    debug1: expecting SSH2_MSG_KEX_DH_GEX_GROUP
-    debug1: SSH2_MSG_KEX_DH_GEX_INIT sent
-    debug1: expecting SSH2_MSG_KEX_DH_GEX_REPLY
-    debug1: Server host key: RSA b5:8f:a7:91:5b:07:b0:8b:cd:f6:34:5d:e5:1c:d9:01
-    debug1: Host 'REMOTEIP' is known and matches the RSA host key.
-    debug1: Found key in /root/.ssh/known_hosts:1
-    debug1: ssh_rsa_verify: signature correct
-    debug1: SSH2_MSG_NEWKEYS sent
-    debug1: expecting SSH2_MSG_NEWKEYS
-    debug1: SSH2_MSG_NEWKEYS received
-    debug1: Roaming not allowed by server
-    debug1: SSH2_MSG_SERVICE_REQUEST sent
-    debug1: SSH2_MSG_SERVICE_ACCEPT received
-    debug1: Authentications that can continue: publickey,password
-    debug1: Next authentication method: publickey
-    debug1: Offering RSA public key: DO1
-    debug1: Authentications that can continue: publickey,password
-    debug1: Offering ECDSA public key: /root/.ssh/my1.key
-    debug1: Server accepts key: pkalg ecdsa-sha2-nistp521 blen 172
-    debug1: key_parse_private2: missing begin marker
-    debug1: read PEM private key done: type ECDSA
-    debug1: Authentication succeeded (publickey).
-    Authenticated to REMOTEIP ([REMOTEIP]:22).
-    debug1: channel 0: new [client-session]
-    debug1: Requesting no-more-sessions@openssh.com
-    debug1: Entering interactive session.
-    debug1: Sending environment.
-    debug1: Sending env LANG = en_US.UTF-8
+    -------------------------------------------------------------------
+    my1.key.pub public key
+    -------------------------------------------------------------------
+    ssh-keygen -lf /root/.ssh/my1.key.pub
+    [size --------------- fingerprint ---------------     - comment - type]
+    4096 9c:8b:f7:74:44:27:79:6b:36:3b:29:e7:98:c2:3f:5e  my1comment (RSA)
+    
+    cat /root/.ssh/my1.key.pub
+    ssh-rsa AAAAB3NzaC1..NEW..w== my1comment
+    
+    -------------------------------------------------------------------
+    /root/.ssh contents
+    -------------------------------------------------------------------
+    total 24K
+    dr-xr-x---. 8 root root 4.0K Apr 20 17:14 ..
+    -rw-r--r--  1 root root  175 Apr 20 17:17 known_hosts
+    -rw-r--r--  1 root root  736 Apr 20 17:17 my1-old.key.pub
+    -rw-------  1 root root 3.2K Apr 20 17:17 my1-old.key
+    -rw-r--r--  1 root root  736 Apr 20 17:30 my1.key.pub
+    -rw-------  1 root root 3.2K Apr 20 17:30 my1.key
+    drwx------  2 root root   96 Apr 20 17:30 .
+    
+    -------------------------------------------------------------------
+    Transfering my1.key.pub to remote host
+    -------------------------------------------------------------------
+    
+    -------------------------------------------------------------------
+    you MAYBE prompted for remote ip/host password
+    enter below command to copy key to remote ip/host
+    -------------------------------------------------------------------
+    
+    rotate and replace old public key from remote: root@1.1.1.1
+    ssh root@1.1.1.1 -p 22 -i /root/.ssh/my1-old.key "sed -i 's|ssh-rsa AAAAB3NzaC1..OLD...gw== my1comment|ssh-rsa AAAAB3NzaC1..NEW..w== my1comment|' /root/.ssh/authorized_keys"
+    
+    
+    -------------------------------------------------------------------
+    Testing connection
+    -------------------------------------------------------------------
+    
+    ssh root@1.1.1.1 -p 22 -i /root/.ssh/my1.key "uname -a"
+    Linux remote.localdomain 2.6.32-642.13.1.el6.x86_64 #1 SMP Wed Jan 11 20:56:24 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+    
+    -------------------------------------------------------------------
+    Setup source server file /root/.ssh/config
+    -------------------------------------------------------------------
+    
+    Add to /root/.ssh/config:
+    
+    Host my1
+    Hostname 1.1.1.1
+    Port 22
+    IdentityFile /root/.ssh/my1.key
+    User root
+    
+    -------------------------------------------------------------------
+    Once /root/.ssh/config entry added, can connect via Host label:
+    my1
+    -------------------------------------------------------------------
+    
+    ssh my1
+    
+    -------------------------------------------------------------------
