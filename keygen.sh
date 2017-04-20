@@ -160,7 +160,7 @@ keygen() {
       echo
       echo "Add to ${HOME}/.ssh/config:"
       echo
-      echo "Host ${remotehost}-${KEYNAME}"
+      echo "Host ${KEYNAME}"
       echo "  Hostname $remotehost"
       echo "  Port $remoteport"
       echo "  IdentityFile $HOME/.ssh/${KEYNAME}.key"
@@ -168,10 +168,10 @@ keygen() {
       echo
       echo "-------------------------------------------------------------------"
       echo "Once ${HOME}/.ssh/config entry added, can connect via Host label:"
-      echo " ${remotehost}-${KEYNAME}"
+      echo " ${KEYNAME}"
       echo "-------------------------------------------------------------------"
       echo
-      echo "ssh ${remotehost}-${KEYNAME}"
+      echo "ssh ${KEYNAME}"
     fi
     echo
     echo "-------------------------------------------------------------------"

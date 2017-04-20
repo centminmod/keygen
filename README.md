@@ -26,7 +26,7 @@ Where:
 * `1.1.1.1` is remote server IP
 * `22` is remote server SSH port
 * `root` is username for remote SSH user
-* `comment` is unique identifying name i.e. `mykey@clienthostname`
+* `comment` is unique identifying name i.e. `mykey@clienthostname` for setting up a Shell aliases further below. Also helps you to revoke the ssh key matching on this `comment`
 * `remotessh_password` for SSH user password,
 
 To generate rsa key pair where `comment` is a unique identifier for your generated key i.e. `mykey@clienthostname` and you pass the remote SSH user's SSH password via `remotessh_password` at `ssh-copy-id` step
@@ -49,7 +49,7 @@ Once run is complete, you'll now be able to ssh into remote server with just spe
 
     ssh root@remoteip -p 22 -i ~/.ssh/my1.key
 
-Output also lists instructions for setting up `~/.ssh/config` for Shell aliases
+Output also lists instructions for setting up `~/.ssh/config` for Shell aliases where `mykey@clienthostname` is your `comment` defined above.
 
     -------------------------------------------------------------------
     Setup source server file /root/.ssh/config
@@ -57,7 +57,7 @@ Output also lists instructions for setting up `~/.ssh/config` for Shell aliases
     
     Add to /root/.ssh/config:
     
-    Host 1.1.1.1-mykey@clienthostname
+    Host mykey@clienthostname
       Hostname 1.1.1.1
       Port 22
       IdentityFile /root/.ssh/my1.key
@@ -65,14 +65,14 @@ Output also lists instructions for setting up `~/.ssh/config` for Shell aliases
     
     -------------------------------------------------------------------
     Once /root/.ssh/config entry added, can connect via Host label:
-     1.1.1.1-mykey@clienthostname
+     mykey@clienthostname
     -------------------------------------------------------------------
 
-    ssh 1.1.1.1-mykey@clienthostname
+    ssh mykey@clienthostname
 
 So you'll be able to ssh into remote server via SSH shell alias for Host label
 
-    ssh 1.1.1.1-mykey@clienthostname
+    ssh mykey@clienthostname
 
 Removing public key from remote server
 ===
