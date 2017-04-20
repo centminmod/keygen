@@ -133,24 +133,29 @@ keygen() {
     fi
     if [[ "$(ping -c1 $remotehost -W 2 >/dev/null 2>&1; echo $?)" -eq '0' ]]; then
         VALIDREMOTE=y
-    echo
-    echo "-------------------------------------------------------------------"
-    echo "you MAYBE prompted for remote ip/host password"
-    echo "enter below command to copy key to remote ip/host"
-    echo "-------------------------------------------------------------------"
-    echo 
+      if [[ "$keyrotate" != 'rotate' ]]; then
+        echo
+        echo "-------------------------------------------------------------------"
+        echo "you MAYBE prompted for remote ip/host password"
+        echo "enter below command to copy key to remote ip/host"
+        echo "-------------------------------------------------------------------"
+        echo
+      else
+        echo
+      fi 
     else
-    echo
-    echo "-------------------------------------------------------------------"
-    echo "enter below command to copy key to remote ip/host"
-    echo "-------------------------------------------------------------------"
-    echo 
+      echo
+      echo "-------------------------------------------------------------------"
+      echo "enter below command to copy key to remote ip/host"
+      echo "-------------------------------------------------------------------"
+      echo 
     fi
     if [[ "$SSHPASS" = [yY] ]]; then
       if [[ "$keyrotate" = 'rotate' ]]; then
         # rotate key routine replace old remote public key first using renamed
         # $HOME/.ssh/${KEYNAME}-old.key identity
         echo "rotate and replace old public key from remote: "$remoteuser@$remotehost""
+        echo
         echo "ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key \"sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys\""
         echo
         ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key "sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys"
@@ -163,6 +168,7 @@ keygen() {
         # rotate key routine replace old remote public key first using renamed
         # $HOME/.ssh/${KEYNAME}-old.key identity
         echo "rotate and replace old public key from remote: "$remoteuser@$remotehost""
+        echo
         echo "ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key \"sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys\""
         echo
         ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key "sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys"

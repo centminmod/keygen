@@ -102,7 +102,7 @@ Rotate Existing SSH Key
 
 New `rotatekeys` command allows you to rotate an existing SSH key both on local and remote server end. This assumes you are running `keygen.sh` on the same server that initially generated the existing SSH key on the server via `gen` command
 
-generated with (where remoter ssh root password = `remotessh_password`)
+generated with (where remote ssh root password = `remotessh_password`)
 
     ./keygen.sh {gen} keytype remoteip remoteport remoteuser keycomment remotessh_password
 
@@ -182,13 +182,9 @@ full output
     -------------------------------------------------------------------
     Transfering my1.key.pub to remote host
     -------------------------------------------------------------------
-    
-    -------------------------------------------------------------------
-    you MAYBE prompted for remote ip/host password
-    enter below command to copy key to remote ip/host
-    -------------------------------------------------------------------
-    
+        
     rotate and replace old public key from remote: root@1.1.1.1
+    
     ssh root@1.1.1.1 -p 22 -i /root/.ssh/my1-old.key "sed -i 's|ssh-rsa AAAAB3NzaC1..OLD...gw== my1comment|ssh-rsa AAAAB3NzaC1..NEW..w== my1comment|' /root/.ssh/authorized_keys"
     
     
