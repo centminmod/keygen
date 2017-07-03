@@ -215,3 +215,52 @@ full output
     ssh my1
     
     -------------------------------------------------------------------
+
+sshtransfer.sh
+===
+
+`sshtransfer.sh` script is a wrapper script to quickly transfer files to a remote server configured with `keygen.sh` setup.
+
+Usage
+
+```
+./sshtransfer.sh 
+
+usage:
+
+./sshtransfer.sh filename remoteip_addr remoteip_port sshkeyname remote_directory
+```
+
+For example, transfer local `/home/test.txt` file to remote server with ip = `1.1.1.1` and remote port `22` in remote directory `/home/remotessh` and key name `my1.key` located at `/root/.ssh/my1.key`.
+
+```
+./sshtransfer.sh /home/test.txt 1.1.1.1 22 my1.key /home/remotessh
+
+transfer /home/test.txt to root@1.1.1.1:/home/remotessh
+rsync -avzi --progress --stats -e ssh -p 22 -i /root/.ssh/my1.key /home/test.txt root@1.1.1.1:/home/remotessh
+sending incremental file list
+<f..t...... test.txt
+           2 100%    0.00kB/s    0:00:00 (xfer#1, to-check=0/1)
+
+Number of files: 1
+Number of files transferred: 1
+Total file size: 2 bytes
+Total transferred file size: 2 bytes
+Literal data: 2 bytes
+Matched data: 0 bytes
+File list size: 25
+File list generation time: 0.001 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 76
+Total bytes received: 37
+
+sent 76 bytes  received 37 bytes  15.07 bytes/sec
+total size is 2  speedup is 0.02
+
+check remote root@1.1.1.1:/home/remotessh
+ssh -p 22 -i /root/.ssh/my1.key root@1.1.1.1 ls -lah /home/remotessh
+total 12K
+drwxr-xr-x  2 root root 4.0K Jul  3 21:03 .
+drwxr-xr-x. 8 root root 4.0K Jul  3 20:33 ..
+-rw-r--r--  1 root root    2 Jul  3 21:03 test.txt
+```
