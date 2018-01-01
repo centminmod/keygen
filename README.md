@@ -86,6 +86,31 @@ So you'll be able to ssh into remote server via SSH shell alias for Host label
 
     ssh my1
 
+Logging
+===
+
+Latest version automatically saves to log files the keygen.sh run + a config summary log
+
+    -------------------------------------------------------------------
+    
+    keygen.sh run logged to: /etc/keygen/logs/keygen-010118-083341.log
+    config logged to: /etc/keygen/generate-1.1.1.1-22-my4-010118-083341.log
+    
+    -------------------------------------------------------------------
+    list all config logs
+    
+    /etc/keygen/generate-1.1.1.1-22-my1-010118-082758.log
+    /etc/keygen/generate-1.1.1.1-22-my2-010118-082907.log
+    /etc/keygen/generate-1.1.1.1-22-my3-010118-083220.log
+    /etc/keygen/generate-1.1.1.1-22-my4-010118-083341.log
+    
+    -------------------------------------------------------------------
+
+config summary log for `/etc/keygen/generate-1.1.1.1-22-my4-010118-083341.log` where it logs remote hostname, remote user, the ssh keyname, short format hostname and kernel version
+
+    cat /etc/keygen/generate-1.1.1.1-22-my4-010118-083341.log
+    ip: 1.1.1.1 user: root keyname: my4 host: host1 2.6.32-042stab126.2
+
 Removing public key from remote server
 ===
 

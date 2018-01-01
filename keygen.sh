@@ -10,7 +10,21 @@ KEYNAME='my1'
 
 RSA_KEYLENTGH='4096'
 ECDSA_KEYLENTGH='256'
+
+KEYGEN_DIR='/etc/keygen'
+KEYGEN_LOGDIR="${KEYGEN_DIR}/logs"
+DT=$(date +"%d%m%y-%H%M%S")
 ################################################################
+if [ ! -d "$KEYGEN_DIR" ]; then
+  mkdir -p "$KEYGEN_DIR"
+fi
+
+if [ ! -d "$KEYGEN_LOGDIR" ]; then
+  mkdir -p "$KEYGEN_LOGDIR"
+fi
+
+# Redirect output of this script log file
+exec &> >(tee -a "${KEYGEN_LOGDIR}/keygen-${DT}.log")
 
 if [ ! -d "$HOME/.ssh" ]; then
   mkdir -p "$HOME/.ssh"
@@ -199,11 +213,25 @@ keygen() {
     if [[ "$VALIDREMOTE" = 'y' && "$SSHCOPYERR" -eq '0' ]]; then
       echo
       echo "-------------------------------------------------------------------"
-      echo "Testing connection"
+      echo "Testing connection please wait..."
       echo "-------------------------------------------------------------------"
       echo
-      echo "ssh $remoteuser@$remotehost -p $remoteport -i $HOME/.ssh/${KEYNAME}.key \"uname -a\""
-      ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}.key "uname -a"
+      echo "ssh $remoteuser@$remotehost -p $remoteport -i $HOME/.ssh/${KEYNAME}.key \"uname -nr\""
+      echo
+      ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}.key "uname -nr" | tee "${KEYGEN_LOGDIR}/tmpfile.log"
+
+      ssh_err=$?
+      if [[ "$ssh_err" -eq '0' ]]; then
+        # log on success
+        if [[ "$keyrotate" = 'rotate' ]]; then
+          menuopt=rotate
+        else
+          menuopt=generate
+        fi
+        sshremote_idname=$(cat "${KEYGEN_LOGDIR}/tmpfile.log")
+        rm -rf "${KEYGEN_LOGDIR}/tmpfile.log"
+        echo "ip: ${remotehost} user: ${remoteuser} keyname: ${KEYNAME} host: ${sshremote_idname}" > "${KEYGEN_DIR}/${menuopt}-${remotehost}-${remoteport}-${KEYNAME}-${DT}.log"
+      fi
 
       echo
       echo "-------------------------------------------------------------------"
@@ -224,6 +252,18 @@ keygen() {
       echo "-------------------------------------------------------------------"
       echo
       echo "ssh ${KEYNAME}"
+      echo
+      echo "-------------------------------------------------------------------"
+      echo
+      echo "keygen.sh run logged to: ${KEYGEN_LOGDIR}/keygen-${DT}.log"
+      echo "config logged to: ${KEYGEN_DIR}/${menuopt}-${remotehost}-${remoteport}-${KEYNAME}-${DT}.log"
+      echo
+      echo "-------------------------------------------------------------------"
+      echo "list all config logs"
+      echo
+      find $KEYGEN_DIR -maxdepth 1 -type f | sort
+      echo
+      echo "-------------------------------------------------------------------"
     fi
     echo
     echo "-------------------------------------------------------------------"
