@@ -306,7 +306,7 @@ If you want to use the same generated SSH key in globally i.e. remote server use
 
 Running the suggested command will
 
-1. add generated SSH public key to `$HOME/.ssh/authorized_keys`
+1. add generated SSH public key to `$HOME/.ssh/authorized_keys` on local server as well
 2. rsync transfer the generated SSH private key `$HOME/.ssh/${KEYNAME}.key` to the remote server's `$HOME/.ssh` directory as well via this repo's [sshtransfer.sh](https://github.com/centminmod/keygen#sshtransfersh) rsync wrapper.
 
 ```
