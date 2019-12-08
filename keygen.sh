@@ -55,7 +55,7 @@ keygen() {
       # openssh 6.7+ supports curve25519-sha256 cipher
       KEYTYPE=$_keytype
       KEYOPT='-t ed25519'
-    elif [ -z $_keytype ]; then
+    elif [ -z "$_keytype" ]; then
       KEYTYPE="$KEYTYPE"
         if [[ "$KEYTYPE" = 'rsa' ]]; then
             KEYOPT="-t rsa -b $RSA_KEYLENTGH"
@@ -81,17 +81,17 @@ keygen() {
       echo "Generating Private Key Pair..."
       echo "-------------------------------------------------------------------"
       while [ -f "$HOME/.ssh/${KEYNAME}.key" ]; do
-          NUM=$(echo $KEYNAME | awk -F 'y' '{print $2}')
+          NUM=$(echo "$KEYNAME" | awk -F 'y' '{print $2}')
           INCREMENT=$(echo $(($NUM+1)))
           KEYNAME="my${INCREMENT}"
       done
     fi
-    if [ -z $_comment ]; then
-      read -ep "enter comment description for key: " keycomment
+    if [ -z "$_comment" ]; then
+      read -rep "enter comment description for key: " keycomment
     else
       keycomment=$_comment
     fi
-    echo "ssh-keygen $KEYOPT -N "" -f $HOME/.ssh/${KEYNAME}.key -C "$keycomment""
+    echo "ssh-keygen $KEYOPT -N \"\" -f $HOME/.ssh/${KEYNAME}.key -C \"$keycomment\""
     ssh-keygen $KEYOPT -N "" -f $HOME/.ssh/${KEYNAME}.key -C "$keycomment"
 
     if [[ "$keyrotate" = 'rotate' ]]; then
@@ -121,29 +121,29 @@ keygen() {
     echo "-------------------------------------------------------------------"
     echo "Transfering ${KEYNAME}.key.pub to remote host"
     echo "-------------------------------------------------------------------"
-    if [ -z $_remoteh ]; then
-      read -ep "enter remote ip address or hostname: " remotehost
+    if [ -z "$_remoteh" ]; then
+      read -rep "enter remote ip address or hostname: " remotehost
     else
       remotehost=$_remoteh
     fi
-    if [ -z $_remotep ]; then
-      read -ep "enter remote ip/host port number i.e. 22: " remoteport
+    if [ -z "$_remotep" ]; then
+      read -rep "enter remote ip/host port number i.e. 22: " remoteport
     else
       remoteport=$_remotep
     fi
-    if [ -z $_remoteu ]; then
-      read -ep "enter remote ip/host username i.e. root: " remoteuser
+    if [ -z "$_remoteu" ]; then
+      read -rep "enter remote ip/host username i.e. root: " remoteuser
     else
       remoteuser=$_remoteu
     fi
     if [[ "$SSHPASS" = [yY] ]]; then
       if [[ -z $_sshpass && "$keyrotate" != 'rotate' ]]; then
-        read -ep "enter remote ip/host username SSH password: " sshpassword
+        read -rep "enter remote ip/host username SSH password: " sshpassword
       else
         sshpassword=$_sshpass
       fi
     fi
-    if [[ "$(ping -c1 $remotehost -W 2 >/dev/null 2>&1; echo $?)" -eq '0' ]]; then
+    if [[ "$(ping -c1 "$remotehost" -W 2 >/dev/null 2>&1; echo $?)" -eq '0' ]]; then
         VALIDREMOTE=y
       if [[ "$keyrotate" != 'rotate' ]]; then
         echo
@@ -166,14 +166,14 @@ keygen() {
       if [[ "$keyrotate" = 'rotate' ]]; then
         # rotate key routine replace old remote public key first using renamed
         # $HOME/.ssh/${KEYNAME}-old.key identity
-        echo "rotate and replace old public key from remote: "$remoteuser@$remotehost""
+        echo "rotate and replace old public key from remote: $remoteuser@$remotehost"
         echo
-        echo "ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key \"sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys\"" | tee "${KEYGEN_LOGDIR}/cmd-rotatekeys-${KEYNAME}-old.key.log"
+        echo "ssh $remoteuser@$remotehost -p $remoteport -i $HOME/.ssh/${KEYNAME}-old.key \"sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys\"" | tee "${KEYGEN_LOGDIR}/cmd-rotatekeys-${KEYNAME}-old.key.log"
         echo
         ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key "sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys"
       else
-        echo "copy $HOME/.ssh/${KEYNAME}.key.pub to remote: "$remoteuser@$remotehost""
-        echo "sshpass -p "$sshpassword" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport" | tee "${KEYGEN_LOGDIR}/cmd-generated-${KEYNAME}.key.log"
+        echo "copy $HOME/.ssh/${KEYNAME}.key.pub to remote: $remoteuser@$remotehost"
+        echo "sshpass -p $sshpassword ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport" | tee "${KEYGEN_LOGDIR}/cmd-generated-${KEYNAME}.key.log"
       fi
     else
       if [[ "$keyrotate" = 'rotate' ]]; then
@@ -181,11 +181,11 @@ keygen() {
         # $HOME/.ssh/${KEYNAME}-old.key identity
         echo "rotate and replace old public key from remote: "$remoteuser@$remotehost""
         echo
-        echo "ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key \"sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys\"" | tee "${KEYGEN_LOGDIR}/cmd-rotatekeys-${KEYNAME}-old.key.log"
+        echo "ssh $remoteuser@$remotehost -p $remoteport -i $HOME/.ssh/${KEYNAME}-old.key \"sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys\"" | tee "${KEYGEN_LOGDIR}/cmd-rotatekeys-${KEYNAME}-old.key.log"
         echo
         ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key "sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys"
       else
-        echo "copy $HOME/.ssh/${KEYNAME}.key.pub to remote: "$remoteuser@$remotehost"" | tee "${KEYGEN_LOGDIR}/cmd-generated-${KEYNAME}.key.log"
+        echo "copy $HOME/.ssh/${KEYNAME}.key.pub to remote: $remoteuser@$remotehost" | tee "${KEYGEN_LOGDIR}/cmd-generated-${KEYNAME}.key.log"
         echo "ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
       fi
     fi
@@ -265,6 +265,7 @@ User $(id -u -n)" | tee "${KEYGEN_LOGDIR}/ssh-config-alias-${KEYNAME}-${remoteho
       find $KEYGEN_DIR -maxdepth 1 -type f | sort
       echo
       echo "-------------------------------------------------------------------"
+      exit
     fi
 }
 
