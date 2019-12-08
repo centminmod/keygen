@@ -1,8 +1,6 @@
 #!/bin/bash
 ################################################################
 # ssh private key pair generator for centminmod.com lemp stacks
-# 
-# http://crypto.stackexchange.com/questions/2482/how-strong-is-the-ecdsa-algorithm
 ################################################################
 # ssh-keygen -t rsa or ecdsa
 KEYTYPE='rsa'
@@ -170,12 +168,12 @@ keygen() {
         # $HOME/.ssh/${KEYNAME}-old.key identity
         echo "rotate and replace old public key from remote: "$remoteuser@$remotehost""
         echo
-        echo "ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key \"sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys\""
+        echo "ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key \"sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys\"" | tee "${KEYGEN_LOGDIR}/cmd-rotatekeys-${KEYNAME}-old.key.log"
         echo
         ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key "sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys"
       else
         echo "copy $HOME/.ssh/${KEYNAME}.key.pub to remote: "$remoteuser@$remotehost""
-        echo "sshpass -p "$sshpassword" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
+        echo "sshpass -p "$sshpassword" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport" | tee "${KEYGEN_LOGDIR}/cmd-generated-${KEYNAME}.key.log"
       fi
     else
       if [[ "$keyrotate" = 'rotate' ]]; then
@@ -183,11 +181,11 @@ keygen() {
         # $HOME/.ssh/${KEYNAME}-old.key identity
         echo "rotate and replace old public key from remote: "$remoteuser@$remotehost""
         echo
-        echo "ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key \"sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys\""
+        echo "ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key \"sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys\"" | tee "${KEYGEN_LOGDIR}/cmd-rotatekeys-${KEYNAME}-old.key.log"
         echo
         ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}-old.key "sed -i 's|$OLDPUBKEY|$NEWPUBKEY|' /root/.ssh/authorized_keys"
       else
-        echo "copy $HOME/.ssh/${KEYNAME}.key.pub to remote: "$remoteuser@$remotehost""
+        echo "copy $HOME/.ssh/${KEYNAME}.key.pub to remote: "$remoteuser@$remotehost"" | tee "${KEYGEN_LOGDIR}/cmd-generated-${KEYNAME}.key.log"
         echo "ssh-copy-id -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
       fi
     fi
@@ -216,9 +214,9 @@ keygen() {
       echo "Testing connection please wait..."
       echo "-------------------------------------------------------------------"
       echo
-      echo "ssh $remoteuser@$remotehost -p $remoteport -i $HOME/.ssh/${KEYNAME}.key \"uname -nr\""
+      echo "ssh $remoteuser@$remotehost -p $remoteport -i $HOME/.ssh/${KEYNAME}.key 'uname -nr'"
       echo
-      ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}.key "uname -nr" | tee "${KEYGEN_LOGDIR}/tmpfile.log"
+      ssh "$remoteuser@$remotehost" -p "$remoteport" -i $HOME/.ssh/${KEYNAME}.key 'uname -nr' | tee "${KEYGEN_LOGDIR}/tmpfile.log"
 
       ssh_err=$?
       if [[ "$ssh_err" -eq '0' ]]; then
@@ -239,12 +237,15 @@ keygen() {
       echo "-------------------------------------------------------------------"
       echo
       echo "Add to ${HOME}/.ssh/config:"
+echo "Host ${KEYNAME}
+Hostname $remotehost
+Port $remoteport
+IdentityFile $HOME/.ssh/${KEYNAME}.key
+User $(id -u -n)" | tee "${KEYGEN_LOGDIR}/ssh-config-alias-${KEYNAME}-${remotehost}.key.log"
       echo
-      echo "Host ${KEYNAME}"
-      echo "  Hostname $remotehost"
-      echo "  Port $remoteport"
-      echo "  IdentityFile $HOME/.ssh/${KEYNAME}.key"
-      echo "  User $(id -u -n)"
+      echo "saved copy at ${KEYGEN_LOGDIR}/ssh-config-alias-${KEYNAME}-${remotehost}.key.log"
+      echo
+      echo "cat ${KEYGEN_LOGDIR}/ssh-config-alias-${KEYNAME}-${remotehost}.key.log >> ${HOME}/.ssh/config"
       echo
       echo "-------------------------------------------------------------------"
       echo "Once ${HOME}/.ssh/config entry added, can connect via Host label:"
@@ -265,8 +266,6 @@ keygen() {
       echo
       echo "-------------------------------------------------------------------"
     fi
-    echo
-    echo "-------------------------------------------------------------------"
 }
 
 case "$1" in
@@ -278,6 +277,7 @@ case "$1" in
     _input_comment=$6
     _input_sshpass=$7
     keygen
+    exit
         ;;
     rotatekeys )
     _input_keytype=$2
@@ -287,6 +287,7 @@ case "$1" in
     _input_comment=$6
     _input_keyname=$7
     keygen rotate
+    exit
         ;;
     * )
     echo "-------------------------------------------------------------------------"

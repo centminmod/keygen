@@ -1,3 +1,18 @@
+install
+===
+
+Install sshpass YUM package and key github repo:
+
+```
+yum -y install sshpass
+
+mkdir -p /root/tools
+cd /root/tools
+git clone -depth=1 https://github.com/centminmod/keygen
+cd keygen
+./keygen.sh
+```
+
 usage
 ===
 
@@ -20,6 +35,20 @@ Where remote server's SSH password is optionally set via `remotessh_password`
     
     -------------------------------------------------------------------------
     keytype supported: rsa, ecdsa, ed25519
+
+cleanup
+===
+
+Removal all generated SSH keys and directories amd logs.
+
+Example for `my1.key*`
+
+```
+rm -rf /etc/keygen/
+rm -rf /root/.ssh/my1.key*
+```
+
+Then remove public key entry from`/root/.ssh/authorized_keys`.
 
 unattended mode
 ===
@@ -75,6 +104,10 @@ Output also lists instructions for setting up `~/.ssh/config` for Shell aliases 
       IdentityFile /root/.ssh/my1.key
       User root
     
+    saved copy at /etc/keygen/logs/ssh-config-alias-my1-1.1.1.1.key.log
+
+    cat /etc/keygen/logs/ssh-config-alias-my1-1.1.1.1.key.log >> /root/.ssh/config
+
     -------------------------------------------------------------------
     Once /root/.ssh/config entry added, can connect via Host label:
      my1
