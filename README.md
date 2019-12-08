@@ -316,8 +316,47 @@ bash /etc/keygen/logs/populate-keygen-081219-231227.log
 contents of `/etc/keygen/logs/populate-keygen-081219-231227.log`
 
 ```
-cat "/root/.ssh/my1.key.pub" >> /root/.ssh/authorized_keys
+getpk=$(cat "/root/.ssh/my1.key.pub")
+if [[ ! $(grep -w '' /root/.ssh/authorized_keys) ]]; then cat "/root/.ssh/my1.key.pub" >> /root/.ssh/authorized_keys; fi
 ./sshtransfer.sh /root/.ssh/my1.key 1.1.1.1 22 my1.key /root/.ssh/
+```
+
+example run
+
+```
+bash /etc/keygen/logs/populate-keygen-081219-231227.log
+
+transfer /root/.ssh/my1.key to root@1.1.1.1:/root/.ssh/
+rsync -avzi --progress --stats -e ssh -p 22 -i /root/.ssh/my1.key /root/.ssh/my1.key root@1.1.1.1:/root/.ssh/
+sending incremental file list
+<f+++++++++ my1.key
+            227 100%    0.00kB/s    0:00:00 (xfr#1, to-chk=0/1)
+
+Number of files: 1 (reg: 1)
+Number of created files: 1 (reg: 1)
+Number of deleted files: 0
+Number of regular files transferred: 1
+Total file size: 227 bytes
+Total transferred file size: 227 bytes
+Literal data: 227 bytes
+Matched data: 0 bytes
+File list size: 0
+File list generation time: 0.001 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 280
+Total bytes received: 35
+
+sent 280 bytes  received 35 bytes  630.00 bytes/sec
+total size is 227  speedup is 0.72
+
+check remote root@1.1.1.1:/root/.ssh/
+ssh -p 22 -i /root/.ssh/my1.key root@1.1.1.1 ls -lah /root/.ssh/
+total 16K
+drwx------  2 root root   63 Dec  8 23:37 .
+dr-xr-x---. 9 root root 4.0K Dec  8 22:45 ..
+-rw-------  1 root root  171 Dec  8 23:36 authorized_keys
+-rw-r--r--  1 root root  174 Dec  8 22:47 known_hosts
+-rw-------  1 root root  227 Dec  8 23:36 my1.key
 ```
 
 sshtransfer.sh
