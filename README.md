@@ -115,9 +115,92 @@ Output also lists instructions for setting up `~/.ssh/config` for Shell aliases 
 
     ssh my1
 
+    -------------------------------------------------------------------
+    
+    keygen.sh run logged to: /etc/keygen/logs/keygen-081219-231227.log
+    config logged to: /etc/keygen/generate-1.1.1.1-22-my1-081219-231227.log
+    
+    -------------------------------------------------------------------
+    
+    populating SSH key file at: /etc/keygen/logs/populate-keygen-081219-231227.log
+    
+    To configure remote with same generated SSH Key type:
+    bash /etc/keygen/logs/populate-keygen-081219-231227.log
+    
+    -------------------------------------------------------------------
+    list /etc/keygen
+    
+    total 4.0K
+    -rw-r--r-- 1 root root  92 Dec  8 23:12 generate-1.1.1.1-22-my1-081219-231227.log
+    drwxr-xr-x 2 root root 161 Dec  8 23:12 logs
+
 So you'll be able to ssh into remote server via SSH shell alias for Host label
 
     ssh my1
+
+### Populate SSH Key Globally
+
+If you want to use the same generated SSH key in globally i.e. remote server use same generated SSH key to access the current server there's a populated SSH key file in output as well
+
+    populating SSH key file at: /etc/keygen/logs/populate-keygen-081219-231227.log
+    
+    To configure remote with same generated SSH Key type:
+    bash /etc/keygen/logs/populate-keygen-081219-231227.log
+
+Running the suggested command will
+
+1. add generated SSH public key to `$HOME/.ssh/authorized_keys` on local server as well
+2. rsync transfer the generated SSH private key `$HOME/.ssh/${KEYNAME}.key` to the remote server's `$HOME/.ssh` directory as well via this repo's [sshtransfer.sh](https://github.com/centminmod/keygen#sshtransfersh) rsync wrapper.
+
+```
+bash /etc/keygen/logs/populate-keygen-081219-231227.log
+```
+
+contents of `/etc/keygen/logs/populate-keygen-081219-231227.log`
+
+```
+getpk=$(cat "/root/.ssh/my1.key.pub")
+if [[ ! $(grep -w '' /root/.ssh/authorized_keys) ]]; then cat "/root/.ssh/my1.key.pub" >> /root/.ssh/authorized_keys; fi
+./sshtransfer.sh /root/.ssh/my1.key 1.1.1.1 22 my1.key /root/.ssh/
+```
+
+example run
+
+```
+bash /etc/keygen/logs/populate-keygen-081219-231227.log
+
+transfer /root/.ssh/my1.key to root@1.1.1.1:/root/.ssh/
+rsync -avzi --progress --stats -e ssh -p 22 -i /root/.ssh/my1.key /root/.ssh/my1.key root@1.1.1.1:/root/.ssh/
+sending incremental file list
+<f+++++++++ my1.key
+            227 100%    0.00kB/s    0:00:00 (xfr#1, to-chk=0/1)
+
+Number of files: 1 (reg: 1)
+Number of created files: 1 (reg: 1)
+Number of deleted files: 0
+Number of regular files transferred: 1
+Total file size: 227 bytes
+Total transferred file size: 227 bytes
+Literal data: 227 bytes
+Matched data: 0 bytes
+File list size: 0
+File list generation time: 0.001 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 280
+Total bytes received: 35
+
+sent 280 bytes  received 35 bytes  630.00 bytes/sec
+total size is 227  speedup is 0.72
+
+check remote root@1.1.1.1:/root/.ssh/
+ssh -p 22 -i /root/.ssh/my1.key root@1.1.1.1 ls -lah /root/.ssh/
+total 16K
+drwx------  2 root root   63 Dec  8 23:37 .
+dr-xr-x---. 9 root root 4.0K Dec  8 22:45 ..
+-rw-------  1 root root  171 Dec  8 23:36 authorized_keys
+-rw-r--r--  1 root root  174 Dec  8 22:47 known_hosts
+-rw-------  1 root root  227 Dec  8 23:36 my1.key
+```
 
 Logging
 ===
@@ -275,89 +358,7 @@ full output
     -------------------------------------------------------------------
     
     ssh my1
-        
-    -------------------------------------------------------------------
-    
-    keygen.sh run logged to: /etc/keygen/logs/keygen-081219-231227.log
-    config logged to: /etc/keygen/generate-1.1.1.1-22-my1-081219-231227.log
-    
-    -------------------------------------------------------------------
-    
-    populating SSH key file at: /etc/keygen/logs/populate-keygen-081219-231227.log
-    
-    To configure remote with same generated SSH Key type:
-    bash /etc/keygen/logs/populate-keygen-081219-231227.log
-    
-    -------------------------------------------------------------------
-    list /etc/keygen
-    
-    total 4.0K
-    -rw-r--r-- 1 root root  92 Dec  8 23:12 generate-1.1.1.1-22-my1-081219-231227.log
-    drwxr-xr-x 2 root root 161 Dec  8 23:12 logs
 
-### Populate SSH Key Globally
-
-If you want to use the same generated SSH key in globally i.e. remote server use same generated SSH key to access the current server there's a populated SSH key file in output as well
-
-    populating SSH key file at: /etc/keygen/logs/populate-keygen-081219-231227.log
-    
-    To configure remote with same generated SSH Key type:
-    bash /etc/keygen/logs/populate-keygen-081219-231227.log
-
-Running the suggested command will
-
-1. add generated SSH public key to `$HOME/.ssh/authorized_keys` on local server as well
-2. rsync transfer the generated SSH private key `$HOME/.ssh/${KEYNAME}.key` to the remote server's `$HOME/.ssh` directory as well via this repo's [sshtransfer.sh](https://github.com/centminmod/keygen#sshtransfersh) rsync wrapper.
-
-```
-bash /etc/keygen/logs/populate-keygen-081219-231227.log
-```
-
-contents of `/etc/keygen/logs/populate-keygen-081219-231227.log`
-
-```
-getpk=$(cat "/root/.ssh/my1.key.pub")
-if [[ ! $(grep -w '' /root/.ssh/authorized_keys) ]]; then cat "/root/.ssh/my1.key.pub" >> /root/.ssh/authorized_keys; fi
-./sshtransfer.sh /root/.ssh/my1.key 1.1.1.1 22 my1.key /root/.ssh/
-```
-
-example run
-
-```
-bash /etc/keygen/logs/populate-keygen-081219-231227.log
-
-transfer /root/.ssh/my1.key to root@1.1.1.1:/root/.ssh/
-rsync -avzi --progress --stats -e ssh -p 22 -i /root/.ssh/my1.key /root/.ssh/my1.key root@1.1.1.1:/root/.ssh/
-sending incremental file list
-<f+++++++++ my1.key
-            227 100%    0.00kB/s    0:00:00 (xfr#1, to-chk=0/1)
-
-Number of files: 1 (reg: 1)
-Number of created files: 1 (reg: 1)
-Number of deleted files: 0
-Number of regular files transferred: 1
-Total file size: 227 bytes
-Total transferred file size: 227 bytes
-Literal data: 227 bytes
-Matched data: 0 bytes
-File list size: 0
-File list generation time: 0.001 seconds
-File list transfer time: 0.000 seconds
-Total bytes sent: 280
-Total bytes received: 35
-
-sent 280 bytes  received 35 bytes  630.00 bytes/sec
-total size is 227  speedup is 0.72
-
-check remote root@1.1.1.1:/root/.ssh/
-ssh -p 22 -i /root/.ssh/my1.key root@1.1.1.1 ls -lah /root/.ssh/
-total 16K
-drwx------  2 root root   63 Dec  8 23:37 .
-dr-xr-x---. 9 root root 4.0K Dec  8 22:45 ..
--rw-------  1 root root  171 Dec  8 23:36 authorized_keys
--rw-r--r--  1 root root  174 Dec  8 22:47 known_hosts
--rw-------  1 root root  227 Dec  8 23:36 my1.key
-```
 
 sshtransfer.sh
 ===
