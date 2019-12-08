@@ -260,11 +260,9 @@ User $(id -u -n)" | tee "${KEYGEN_LOGDIR}/ssh-config-alias-${KEYNAME}-${remoteho
       echo "config logged to: ${KEYGEN_DIR}/${menuopt}-${remotehost}-${remoteport}-${KEYNAME}-${DT}.log"
       echo
       echo "-------------------------------------------------------------------"
-      echo "list all config logs"
+      echo "list $KEYGEN_DIR"
       echo
-      find $KEYGEN_DIR -maxdepth 1 -type f | sort
-      echo
-      echo "-------------------------------------------------------------------"
+      ls -lAhrt "$KEYGEN_DIR"
       exit
     fi
 }
