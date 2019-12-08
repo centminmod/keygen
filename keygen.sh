@@ -255,9 +255,16 @@ User $(id -u -n)" | tee "${KEYGEN_LOGDIR}/ssh-config-alias-${KEYNAME}-${remoteho
       echo "ssh ${KEYNAME}"
       echo
       echo "-------------------------------------------------------------------"
-      echo
       echo "keygen.sh run logged to: ${KEYGEN_LOGDIR}/keygen-${DT}.log"
       echo "config logged to: ${KEYGEN_DIR}/${menuopt}-${remotehost}-${remoteport}-${KEYNAME}-${DT}.log"
+      echo
+      echo "-------------------------------------------------------------------"
+      echo "cat \"$HOME/.ssh/${KEYNAME}.key.pub\" >> $HOME/.ssh/authorized_keys" > "${KEYGEN_LOGDIR}/populate-keygen-${DT}.log"
+      echo "./sshtransfer.sh $HOME/.ssh/${KEYNAME}.key $remotehost $remoteport ${KEYNAME}.key $HOME/.ssh/" >> "${KEYGEN_LOGDIR}/populate-keygen-${DT}.log"
+      echo "populating SSH key file at: ${KEYGEN_LOGDIR}/populate-keygen-${DT}.log"
+      echo
+      echo "To configure remote with same generated SSH Key type:"
+      echo "bash ${KEYGEN_LOGDIR}/populate-keygen-${DT}.log"
       echo
       echo "-------------------------------------------------------------------"
       echo "list $KEYGEN_DIR"

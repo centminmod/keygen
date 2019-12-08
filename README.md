@@ -264,6 +264,10 @@ full output
     Port 22
     IdentityFile /root/.ssh/my1.key
     User root
+
+    saved copy at /etc/keygen/logs/ssh-config-alias-my1-1.1.1.1.key.log
+
+    cat /etc/keygen/logs/ssh-config-alias-my1-1.1.1.1.key.log >> /root/.ssh/
     
     -------------------------------------------------------------------
     Once /root/.ssh/config entry added, can connect via Host label:
@@ -271,8 +275,50 @@ full output
     -------------------------------------------------------------------
     
     ssh my1
+        
+    -------------------------------------------------------------------
+    
+    keygen.sh run logged to: /etc/keygen/logs/keygen-081219-231227.log
+    config logged to: /etc/keygen/generate-1.1.1.1-22-my1-081219-231227.log
     
     -------------------------------------------------------------------
+    
+    populating SSH key file at: /etc/keygen/logs/populate-keygen-081219-231227.log
+    
+    To configure remote with same generated SSH Key type:
+    bash /etc/keygen/logs/populate-keygen-081219-231227.log
+    
+    -------------------------------------------------------------------
+    list /etc/keygen
+    
+    total 4.0K
+    -rw-r--r-- 1 root root  92 Dec  8 23:12 generate-1.1.1.1-22-my1-081219-231227.log
+    drwxr-xr-x 2 root root 161 Dec  8 23:12 logs
+
+### Populate SSH Key Globally
+
+If you want to use the same generated SSH key in globally i.e. remote server use same generated SSH key to access the current server there's a populated SSH key file in output as well
+
+    populating SSH key file at: /etc/keygen/logs/populate-keygen-081219-231227.log
+    
+    To configure remote with same generated SSH Key type:
+    bash /etc/keygen/logs/populate-keygen-081219-231227.log
+
+Running the suggested command will
+
+1. add generated SSH public key to `$HOME/.ssh/authorized_keys`
+2. rsync transfer the generated SSH private key `$HOME/.ssh/${KEYNAME}.key` to the remote server's `$HOME/.ssh` directory as well via this repo's [sshtransfer.sh](https://github.com/centminmod/keygen#sshtransfersh) rsync wrapper.
+
+```
+bash /etc/keygen/logs/populate-keygen-081219-231227.log
+```
+
+contents of `/etc/keygen/logs/populate-keygen-081219-231227.log`
+
+```
+cat "/root/.ssh/my1.key.pub" >> /root/.ssh/authorized_keys
+./sshtransfer.sh /root/.ssh/my1.key 1.1.1.1 22 my1.key /root/.ssh/
+```
 
 sshtransfer.sh
 ===
