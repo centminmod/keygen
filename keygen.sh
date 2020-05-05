@@ -241,7 +241,9 @@ echo "Host ${KEYNAME}
 Hostname $remotehost
 Port $remoteport
 IdentityFile $HOME/.ssh/${KEYNAME}.key
-User $(id -u -n)" | tee "${KEYGEN_LOGDIR}/ssh-config-alias-${KEYNAME}-${remotehost}.key.log"
+IdentitiesOnly=yes
+User $(id -u -n)" | tee "${KEYGEN_LOGDIR}/ssh-config-alias-${KEYNAME}-${remotehost}.key.log
+#LogLevel DEBUG3"
       echo
       echo "saved copy at ${KEYGEN_LOGDIR}/ssh-config-alias-${KEYNAME}-${remotehost}.key.log"
       echo

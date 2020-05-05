@@ -102,7 +102,9 @@ Output also lists instructions for setting up `~/.ssh/config` for Shell aliases 
       Hostname 1.1.1.1
       Port 22
       IdentityFile /root/.ssh/my1.key
+      IdentitiesOnly=yes
       User root
+      #LogLevel DEBUG3
     
     saved copy at /etc/keygen/logs/ssh-config-alias-my1-1.1.1.1.key.log
 
@@ -346,7 +348,9 @@ full output
     Hostname 1.1.1.1
     Port 22
     IdentityFile /root/.ssh/my1.key
+    IdentitiesOnly=yes
     User root
+    #LogLevel DEBUG3
 
     saved copy at /etc/keygen/logs/ssh-config-alias-my1-1.1.1.1.key.log
 
