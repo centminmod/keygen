@@ -262,11 +262,11 @@ User $(id -u -n)
       echo
       echo "-------------------------------------------------------------------"
       echo "getpk=\$(cat \"$HOME/.ssh/${KEYNAME}.key.pub\")" > "${KEYGEN_LOGDIR}/populate-keygen-${DT}.log"
-      echo "if [[ ! \$(grep -w '"$getpk"' "$HOME/.ssh/authorized_keys") ]]; then cat \"$HOME/.ssh/${KEYNAME}.key.pub\" >> $HOME/.ssh/authorized_keys; fi" >> "${KEYGEN_LOGDIR}/populate-keygen-${DT}.log"
+      echo "if [[ ! \$(grep -w \"\$getpk\" "$HOME/.ssh/authorized_keys") ]]; then cat \"$HOME/.ssh/${KEYNAME}.key.pub\" >> $HOME/.ssh/authorized_keys; fi" >> "${KEYGEN_LOGDIR}/populate-keygen-${DT}.log"
       echo "./sshtransfer.sh $HOME/.ssh/${KEYNAME}.key $remotehost $remoteport ${KEYNAME}.key $HOME/.ssh/" >> "${KEYGEN_LOGDIR}/populate-keygen-${DT}.log"
       echo "populating SSH key file at: ${KEYGEN_LOGDIR}/populate-keygen-${DT}.log"
       echo
-      echo "To configure remote with same generated SSH Key type:"
+      echo "To configure remote with same generated SSH Key:"
       echo "bash ${KEYGEN_LOGDIR}/populate-keygen-${DT}.log"
       echo
       echo "-------------------------------------------------------------------"
