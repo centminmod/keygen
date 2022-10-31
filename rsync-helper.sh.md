@@ -1,5 +1,5 @@
-* [With both SSH password & SSH key Logins](#with-both-ssh-password-&-ssh-key-logins)
-* [With both SSH password & SSH key Login Auto Generated](#with-both-ssh-password-&-ssh-key-login-auto-generated)
+* [With both SSH password & SSH key Logins](#with-both-ssh-password--ssh-key-logins)
+* [With both SSH password & SSH key Login Auto Generated](#with-both-ssh-password--ssh-key-login-auto-generated)
   * [dry run rsync](#dry-run-rsync)
 
 # With both SSH password & SSH key Logins
