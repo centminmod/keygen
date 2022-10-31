@@ -83,6 +83,7 @@ gen_key() {
   echo
   if [ -n "$sshpassword" ]; then
     echo "sshpass -p \"$sshpassword\" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
+    echo
     sshpass -p "$sshpassword" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport
     export input_loginpass="$HOME/.ssh/${KEYNAME}.key"
   else
@@ -167,18 +168,23 @@ rsync_gen() {
         fi
       fi
     fi
+    echo
+    echo "If source is a directory, whether it ends in forward slash or not matters"
+    echo "/path/to/sourcedir/ will copy files within the source directory itself"
+    echo "/path/to/sourcedir without ending slash will copy the source directory itself"
+    echo
     read -ep "Full path to source directory or file you want to transfer? " -i "$rsync_sourcedir" input_source
     read -ep "Full path to remote server destination directory to save files to? " -i "$rsync_remotedir" input_destination
     echo
     echo "--------------------------------------------------------------------------------"
     echo "Generated rsync dry run only command:"
     echo "--------------------------------------------------------------------------------"
-    rsync_transfer y $input_loginpass $input_loginuser $input_loginip $input_loginport $input_source ${input_destination}/
+    rsync_transfer y $input_loginpass $input_loginuser $input_loginip $input_loginport $input_source ${input_destination}
     echo
     echo "--------------------------------------------------------------------------------"
     echo "Generated rsync live run only command:"
     echo "--------------------------------------------------------------------------------"
-    rsync_transfer n $input_loginpass $input_loginuser $input_loginip $input_loginport $input_source ${input_destination}/
+    rsync_transfer n $input_loginpass $input_loginuser $input_loginip $input_loginport $input_source ${input_destination}
     echo
   fi
 
