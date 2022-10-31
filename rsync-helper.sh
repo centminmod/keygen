@@ -40,6 +40,25 @@ if [ -f "/etc/centminmod/rsync-helper.ini" ]; then
   source "/etc/centminmod/rsync-helper.ini"
 fi
 
+csf_allow() {
+  allowip=$1
+  allowport=$2
+  if [[ -f /etc/csf/csf.allow && ! "$(grep "tcp|out|d=${allowport}|d=${allowip}" /etc/csf/csf.allow)" ]]; then
+    # tcp/udp|in/out|s/d=port|s/d=ip
+    echo
+    echo "--------------------------------------------------------------------------------"
+    echo "setup CSF Firewall outbound TCP connection in /etc/csf/csf.allow"
+    echo "--------------------------------------------------------------------------------"
+    echo "add:"
+    # echo "tcp|out|d=${allowport}|d=${allowip} # rsync-helper"
+    echo
+    echo "tcp|out|d=${allowport}|d=${allowip} # rsync-helper" >> /etc/csf/csf.allow
+    grep "tcp|out|d=${allowport}|d=${allowip}" /etc/csf/csf.allow
+    csf -ra >/dev/null 2>&1
+    echo
+  fi
+}
+
 rsync_transfer() {
   dryrun=$1
   privatekey=$2
@@ -176,6 +195,7 @@ rsync_gen() {
     read -ep "Full path to source directory or file you want to transfer? " -i "$rsync_sourcedir" input_source
     read -ep "Full path to remote server destination directory to save files to? " -i "$rsync_remotedir" input_destination
     echo
+    csf_allow $input_loginip $input_loginport
     echo "--------------------------------------------------------------------------------"
     echo "Generated rsync dry run only command:"
     echo "--------------------------------------------------------------------------------"

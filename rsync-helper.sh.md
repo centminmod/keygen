@@ -146,6 +146,14 @@ If source is a directory, whether it ends in forward slash or not matters
 Full path to source directory or file you want to transfer? /path/to/myfile.tar
 Full path to remote server destination directory to save files to? /home/destination_dir
 
+
+--------------------------------------------------------------------------------
+setup CSF Firewall outbound TCP connection in /etc/csf/csf.allow
+--------------------------------------------------------------------------------
+add:
+
+tcp|out|d=22|d=111.222.333.444 # rsync-helper
+
 --------------------------------------------------------------------------------
 Generated rsync dry run only command:
 --------------------------------------------------------------------------------
