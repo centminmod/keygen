@@ -86,6 +86,7 @@ gen_key() {
   sshpassword=$4
   KEYNAME='cmmtransfer'
   KEYOPT='-t ed25519'
+  echo
   echo "Generating SSH public/private key..."
   # Generate actual SSH Key Private + Public Key Pairs
   ssh-keygen $KEYOPT -N "" -f $HOME/.ssh/${KEYNAME}.key -C "cmmtransferkey"
@@ -93,27 +94,36 @@ gen_key() {
   # ssh-keygen -lf $HOME/.ssh/${KEYNAME}.key.pub
   # SSH Public Key
   # cat "$HOME/.ssh/${KEYNAME}.key.pub"
-  # Transfer SSH Public Key to remote server, you'd be prompted for 
-  # remote server's root user password once time for this command
-  echo "--------------------------------------------------------------------------------"
-  echo "Run this command to copy the generated SSH public key for setup"
-  echo "on remote server at: $remoteuser@$remotehost -p $remoteport"
-  echo "--------------------------------------------------------------------------------"
-  echo
-  if [ -n "$sshpassword" ]; then
-    echo "sshpass -p \"$sshpassword\" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
+  if [[ -n "$remoteuser" && -n "$remotehost" && -n "$remoteport" ]]; then
+    # Transfer SSH Public Key to remote server, you'd be prompted for 
+    # remote server's root user password once time for this command
+    echo "--------------------------------------------------------------------------------"
+    echo "Run this command to copy the generated SSH public key for setup"
+    echo "on remote server at: $remoteuser@$remotehost -p $remoteport"
+    echo "--------------------------------------------------------------------------------"
     echo
-    sshpass -p "$sshpassword" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport
-    export input_loginpass="$HOME/.ssh/${KEYNAME}.key"
+    if [ -n "$sshpassword" ]; then
+    echo "sshpass -p \"$sshpassword\" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$  remotehost -p $remoteport"
+      echo
+    sshpass -p "$sshpassword" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -  p $remoteport
+      export input_loginpass="$HOME/.ssh/${KEYNAME}.key"
+    else
+      echo "ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
+    fi
+    echo "--------------------------------------------------------------------------------"
+    echo "After running ssh-copy-id, you will be able to SSH into remote server using command:"
+    echo "--------------------------------------------------------------------------------"
+    echo
+    echo "ssh -o 'StrictHostKeyChecking=no' -p '$remoteport' '$remoteuser@$remotehost' -i $HOME/.ssh/${KEYNAME}.key"
+    echo
   else
-    echo "ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
+    echo "--------------------------------------------------------------------------------"
+    echo "Generated SSH public/private key pair"
+    echo "--------------------------------------------------------------------------------"
+    echo "SSH public key generated at: $HOME/.ssh/${KEYNAME}.key.pub"
+    echo "SSH private key generated at: $HOME/.ssh/${KEYNAME}.key"
+    echo
   fi
-  echo "--------------------------------------------------------------------------------"
-  echo "After running ssh-copy-id, you will be able to SSH into remote server using command:"
-  echo "--------------------------------------------------------------------------------"
-  echo
-  echo "ssh -o 'StrictHostKeyChecking=no' -p '$remoteport' '$remoteuser@$remotehost' -i $HOME/.ssh/${KEYNAME}.key"
-  echo
 }
 
 rsync_gen() {
@@ -207,7 +217,25 @@ rsync_gen() {
     rsync_transfer n $input_loginpass $input_loginuser $input_loginip $input_loginport $input_source ${input_destination}
     echo
   fi
-
 }
 
-rsync_gen
+help() {
+  echo
+  echo "Usage:"
+  echo
+  echo "$0 rsync"
+  echo "$0 genkey"
+}
+
+case "$1" in
+  rsync )
+    rsync_gen
+    ;;
+  genkey )
+    gen_key
+    ;;
+  * )
+    help
+    ;;
+esac
+

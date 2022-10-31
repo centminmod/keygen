@@ -1,13 +1,56 @@
+* [Usage](#usage)
+* [Generate SSH Keys](#generate-ssh-keys)
 * [With both SSH password & SSH key Logins](#with-both-ssh-password--ssh-key-logins)
 * [With both SSH password & SSH key Login Auto Generated](#with-both-ssh-password--ssh-key-login-auto-generated)
   * [dry run rsync](#dry-run-rsync)
+
+# Usage
+
+```
+./rsync-helper.sh 
+
+Usage:
+
+./rsync-helper.sh rsync
+./rsync-helper.sh genkey
+```
+
+# Generate SSH Keys
+
+```
+./rsync-helper.sh genkey
+
+Generating SSH public/private key...
+Generating public/private ed25519 key pair.
+Your identification has been saved in /root/.ssh/cmmtransfer.key.
+Your public key has been saved in /root/.ssh/cmmtransfer.key.pub.
+The key fingerprint is:
+SHA256:x1+TCulxQ0OZYX3bcdTjp9EnzO499CvgTPOFrdj35tc cmmtransferkey
+The key's randomart image is:
++--[ED25519 256]--+
+|            += .o|
+|           oo .o+|
+|            oo.o*|
+|         . o .=+=|
+|        S * o.*+o|
+|         o O =o= |
+|          = O.+.o|
+|           + =.oE|
+|              o+B|
++----[SHA256]-----+
+--------------------------------------------------------------------------------
+Generated SSH public/private key pair
+--------------------------------------------------------------------------------
+SSH public key generated at: /root/.ssh/cmmtransfer.key.pub
+SSH private key generated at: /root/.ssh/cmmtransfer.key
+```
 
 # With both SSH password & SSH key Logins
 
 And `SHOW_WARNINGS='y'` set.
 
 ```
-./rsync-helper.sh 
+./rsync-helper.sh rsync
 
 --------------------------------------------------------------------------------
    Notes:
@@ -68,7 +111,7 @@ rsync -avzi --progress --stats -e "ssh -p 22 -T -c aes128-gcm@openssh.com,aes256
 And `SHOW_WARNINGS='n'` set.
 
 ```
-./rsync-helper.sh 
+./rsync-helper.sh rsync
 
 --------------------------------------------------------------------------------
    Notes:
