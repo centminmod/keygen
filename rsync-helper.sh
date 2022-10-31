@@ -13,12 +13,29 @@ export SYSTEMD_PAGER=''
 # rsync command for remote transfers
 #####################################################
 DT=$(date +"%d%m%y-%H%M%S")
+SCRIPTDIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 #####################################################
 if [ ! -f /usr/bin/sshpass ]; then
   yum -y -q install sshpass
 fi
 if [ ! -f /usr/bin/rsync ]; then
   yum -y -q install rsync
+fi
+# variables to set in rsync-helper.ini as override variables
+#
+# rsync_privatekey=
+# rsync_remoteuser=
+# rsync_remotepass=
+# rsync_remoteip=
+# rsync_remoteport=
+# rsync_sourcedir=
+# rsync_remotedir=
+#
+if [ -f "${SCRIPTDIR}/rsync-helper.ini" ]; then
+  source "${SCRIPTDIR}/rsync-helper.ini"
+fi
+if [ -f "/etc/centminmod/rsync-helper.ini" ]; then
+  source "/etc/centminmod/rsync-helper.ini"
 fi
 
 rsync_transfer() {
@@ -57,15 +74,21 @@ gen_key() {
   # cat "$HOME/.ssh/${KEYNAME}.key.pub"
   # Transfer SSH Public Key to remote server, you'd be prompted for 
   # remote server's root user password once time for this command
+  echo "--------------------------------------------------------------------------------"
   echo "Run this command to copy the generated SSH public key for setup"
   echo "on remote server at: $remoteuser@$remotehost -p $remoteport"
+  echo "--------------------------------------------------------------------------------"
   echo
   if [ -n "$sshpassword" ]; then
     echo "sshpass -p \"$sshpassword\" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
+    sshpass -p "$sshpassword" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport
+    export input_loginpass="$HOME/.ssh/${KEYNAME}.key"
   else
     echo "ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
   fi
+  echo "--------------------------------------------------------------------------------"
   echo "After running ssh-copy-id, you will be able to SSH into remote server using command:"
+  echo "--------------------------------------------------------------------------------"
   echo
   echo "ssh -o 'StrictHostKeyChecking=no' -p '$remoteport' '$remoteuser@$remotehost' -i $HOME/.ssh/${KEYNAME}.key"
   echo
@@ -87,7 +110,9 @@ rsync_gen() {
   echo "3. The full path to your destination directory name you want to transfer to"
   echo "4. Optionally: decide if you want SSH public/private key generated for you"
   echo
+  echo "--------------------------------------------------------------------------------"
   echo "Warnings:"
+  echo "--------------------------------------------------------------------------------"
   echo
   echo "1. Pay attention to destination directory name you want to transfer to"
   echo "   If you set it to a directory that already exists, you can overwrite"
@@ -101,14 +126,22 @@ rsync_gen() {
     exit
   else
     read -ep "Does your remote server use passwords or SSH keys for SSH login? [p/k/both/unsure] : " input_login
-    read -ep "What is your remote server's primary IP address? " input_loginip
-    read -ep "What is your remote server's SSH port number? i.e. 22 : " input_loginport
-    read -ep "What is your remote server's SSH login username? i.e. root : " input_loginuser
+    if [[ ! "$(echo $input_login | egrep 'p|k|both|unsure')" ]]; then
+      echo
+      echo "error: invalid input"
+      echo
+      echo "valid input options are: p, k, both, unsure"
+      echo
+      read -ep "Does your remote server use passwords or SSH keys for SSH login? [p/k/both/unsure] : " input_login
+    fi
+    read -ep "What is your remote server's primary IP address? " -i "$rsync_remoteip" input_loginip
+    read -ep "What is your remote server's SSH port number? i.e. 22 : " -i "$rsync_remoteport" input_loginport
+    read -ep "What is your remote server's SSH login username? i.e. root : " -i "$rsync_remoteuser" input_loginuser
     if [[ "$input_login" = 'both' || "$input_login" = 'unsure' ]]; then
-      read -ep "What is your remote server's user = $input_loginuser password? " input_loginpass
+      read -ep "What is your remote server's user = $input_loginuser password? " -i "$rsync_remotepass" input_loginpass
       read -ep "Does the user = $input_loginuser already have an existing SSH private key? [y/n] : " input_existing_key
       if [[ "$input_existing_key" = [yY] ]]; then
-        read -ep "Full path to your remote server's user = $input_loginuser SSH private key? " input_loginpass
+        read -ep "Full path to your remote server's user = $input_loginuser SSH private key? " -i "$rsync_privatekey" input_loginpass
       else
         read -ep "Do you want to generate a custom SSH private/public key for $input_loginuser? [y/n] : " input_genkey
         if [[ "$input_genkey" = [yY] ]]; then
@@ -116,11 +149,11 @@ rsync_gen() {
         fi
       fi
     elif [[ "$input_login" = 'p' ]]; then
-      read -ep "What is your remote server's user = $input_loginuser password? " input_loginpass
+      read -ep "What is your remote server's user = $input_loginuser password? " -i "$rsync_remotepass" input_loginpass
     elif [[ "$input_login" = 'k' ]]; then
       read -ep "Does the user = $input_loginuser already have an existing SSH private key? [y/n] : " input_existing_key
       if [[ "$input_existing_key" = [yY] ]]; then
-        read -ep "Full path to your remote server's user = $input_loginuser SSH private key? " input_loginpass
+        read -ep "Full path to your remote server's user = $input_loginuser SSH private key? " -i "$rsync_privatekey" input_loginpass
       else
         read -ep "Do you want to generate a custom SSH private/public key for $input_loginuser? [y/n] : " input_genkey
         if [[ "$input_genkey" = [yY] ]]; then
@@ -128,13 +161,17 @@ rsync_gen() {
         fi
       fi
     fi
-    read -ep "Full path to source directory or file you want to transfer? " input_source
-    read -ep "Full path to remote server destination directory to save files to? " input_destination
+    read -ep "Full path to source directory or file you want to transfer? " -i "$rsync_sourcedir" input_source
+    read -ep "Full path to remote server destination directory to save files to? " -i "$rsync_remotedir" input_destination
     echo
+    echo "--------------------------------------------------------------------------------"
     echo "generated rsync dry run only command:"
+    echo "--------------------------------------------------------------------------------"
     rsync_transfer y $input_loginpass $input_loginuser $input_loginip $input_loginport $input_source ${input_destination}/
     echo
+    echo "--------------------------------------------------------------------------------"
     echo "generated rsync live run only command:"
+    echo "--------------------------------------------------------------------------------"
     rsync_transfer n $input_loginpass $input_loginuser $input_loginip $input_loginport $input_source ${input_destination}/
   fi
 
