@@ -16,6 +16,8 @@ DT=$(date +"%d%m%y-%H%M%S")
 SCRIPTDIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 
 SHOW_WARNINGS='n'
+KEYNAME='cmmtransfer'
+KEYOPT='-t ed25519'
 #####################################################
 if [ ! -f /usr/bin/sshpass ]; then
   yum -y -q install sshpass
@@ -74,6 +76,9 @@ rsync_transfer() {
   fi
   if [ -f $privatekey ]; then
     echo "rsync -avzi${dryrun_opt} --progress --stats -e \"ssh -p $remoteport -T -c aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com -o Compression=no -o StrictHostKeyChecking=no -x -i ${privatekey}\" ${sourcedir} ${remoteuser}@${remoteip}:${remotedir}"
+  elif [[ $privatekey = 'nopass' ]]; then
+    privatekey="$HOME/.ssh/${KEYNAME}.key"
+    echo "rsync -avzi${dryrun_opt} --progress --stats -e \"ssh -p $remoteport -T -c aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com -o Compression=no -o StrictHostKeyChecking=no -x -i ${privatekey}\" ${sourcedir} ${remoteuser}@${remoteip}:${remotedir}"
   else
     echo "sshpass -p '$privatekey' rsync -avzi${dryrun_opt} --progress --stats -e \"ssh -p $remoteport -T -c aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com -o Compression=no -o StrictHostKeyChecking=no -x\" ${sourcedir} ${remoteuser}@${remoteip}:${remotedir}"
   fi
@@ -84,8 +89,6 @@ gen_key() {
   remotehost=$2
   remoteport=$3
   sshpassword=$4
-  KEYNAME='cmmtransfer'
-  KEYOPT='-t ed25519'
   echo
   echo "Generating SSH public/private key..."
   # Generate actual SSH Key Private + Public Key Pairs
@@ -102,14 +105,15 @@ gen_key() {
     echo "on remote server at: $remoteuser@$remotehost -p $remoteport"
     echo "--------------------------------------------------------------------------------"
     echo
-    if [ -n "$sshpassword" ]; then
+    if [[ -n "$sshpassword" && "$sshpassword" != 'nopass' ]]; then
     echo "sshpass -p \"$sshpassword\" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$  remotehost -p $remoteport"
       echo
-    sshpass -p "$sshpassword" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -  p $remoteport
+    sshpass -p "$sshpassword" ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport
       export input_loginpass="$HOME/.ssh/${KEYNAME}.key"
     else
       echo "ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${KEYNAME}.key.pub $remoteuser@$remotehost -p $remoteport"
     fi
+    echo
     echo "--------------------------------------------------------------------------------"
     echo "After running ssh-copy-id, you will be able to SSH into remote server using command:"
     echo "--------------------------------------------------------------------------------"
@@ -193,7 +197,9 @@ rsync_gen() {
       else
         read -ep "Do you want to generate a custom SSH private/public key for $input_loginuser? [y/n] : " input_genkey
         if [[ "$input_genkey" = [yY] ]]; then
-          gen_key $input_loginuser $input_loginip $input_loginport
+          input_nologinpass=nopass
+          input_loginpass="$HOME/.ssh/${KEYNAME}.key"
+          gen_key $input_loginuser $input_loginip $input_loginport $input_nologinpass
         fi
       fi
     fi
@@ -238,4 +244,3 @@ case "$1" in
     help
     ;;
 esac
-
