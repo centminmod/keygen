@@ -14,6 +14,8 @@ export SYSTEMD_PAGER=''
 #####################################################
 DT=$(date +"%d%m%y-%H%M%S")
 SCRIPTDIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+SHOW_WARNINGS='n'
 #####################################################
 if [ ! -f /usr/bin/sshpass ]; then
   yum -y -q install sshpass
@@ -96,6 +98,9 @@ gen_key() {
 
 rsync_gen() {
   echo
+  echo "--------------------------------------------------------------------------------"
+  echo "   Notes:"
+  echo "--------------------------------------------------------------------------------"
   echo "Below questions will help you generate the required rsync comand line which"
   echo "you can then run to transfer local data to a remote server of your choice"
   echo
@@ -109,16 +114,17 @@ rsync_gen() {
   echo "2. The full path to your source directory or file you want to transfer from"
   echo "3. The full path to your destination directory name you want to transfer to"
   echo "4. Optionally: decide if you want SSH public/private key generated for you"
-  echo
-  echo "--------------------------------------------------------------------------------"
-  echo "Warnings:"
-  echo "--------------------------------------------------------------------------------"
-  echo
-  echo "1. Pay attention to destination directory name you want to transfer to"
-  echo "   If you set it to a directory that already exists, you can overwrite"
-  echo "   existing files within destination directory. If unsure, set destination"
-  echo "   directory name to a new directory name. You can always transfer files later"
-  echo "   on remote server to the right final destination directory."
+  if [[ "$SHOW_WARNINGS" = [yY] ]]; then
+    echo
+    echo "--------------------------------------------------------------------------------"
+    echo "   Warnings:"
+    echo "--------------------------------------------------------------------------------"
+    echo "1. Pay attention to destination directory name you want to transfer to"
+    echo "   If you set it to a directory that already exists, you can overwrite"
+    echo "   existing files within destination directory. If unsure, set destination"
+    echo "   directory name to a new directory name. You can always transfer files later"
+    echo "   on remote server to the right final destination directory."
+  fi
   echo
   read -ep "Do you want to continue to generate your rsync command line? [y/n] : " continue_rsync
   echo
@@ -165,14 +171,15 @@ rsync_gen() {
     read -ep "Full path to remote server destination directory to save files to? " -i "$rsync_remotedir" input_destination
     echo
     echo "--------------------------------------------------------------------------------"
-    echo "generated rsync dry run only command:"
+    echo "Generated rsync dry run only command:"
     echo "--------------------------------------------------------------------------------"
     rsync_transfer y $input_loginpass $input_loginuser $input_loginip $input_loginport $input_source ${input_destination}/
     echo
     echo "--------------------------------------------------------------------------------"
-    echo "generated rsync live run only command:"
+    echo "Generated rsync live run only command:"
     echo "--------------------------------------------------------------------------------"
     rsync_transfer n $input_loginpass $input_loginuser $input_loginip $input_loginport $input_source ${input_destination}/
+    echo
   fi
 
 }
