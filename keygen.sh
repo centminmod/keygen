@@ -238,12 +238,12 @@ keygen() {
       echo
       echo "Add to ${HOME}/.ssh/config:"
 echo "Host ${KEYNAME}
-Hostname $remotehost
-Port $remoteport
-IdentityFile $HOME/.ssh/${KEYNAME}.key
-IdentitiesOnly=yes
-User $(id -u -n)
-#LogLevel DEBUG3" | tee "${KEYGEN_LOGDIR}/ssh-config-alias-${KEYNAME}-${remotehost}.key.log"
+        Hostname $remotehost
+        Port $remoteport
+        IdentityFile $HOME/.ssh/${KEYNAME}.key
+        IdentitiesOnly=yes
+        User $(id -u -n)
+        #LogLevel DEBUG3" | tee "${KEYGEN_LOGDIR}/ssh-config-alias-${KEYNAME}-${remotehost}.key.log"
       echo
       echo "saved copy at ${KEYGEN_LOGDIR}/ssh-config-alias-${KEYNAME}-${remotehost}.key.log"
       echo
