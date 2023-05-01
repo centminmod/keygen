@@ -8,7 +8,7 @@ yum -y install sshpass
 
 mkdir -p /root/tools
 cd /root/tools
-git clone -depth=1 https://github.com/centminmod/keygen
+git clone --depth=1 https://github.com/centminmod/keygen
 cd keygen
 ./keygen.sh
 ```
