@@ -237,7 +237,7 @@ keygen() {
       echo "-------------------------------------------------------------------"
       echo
       echo "Add to ${HOME}/.ssh/config:"
-echo "Host ${KEYNAME}
+      echo "Host ${KEYNAME}
         Hostname $remotehost
         Port $remoteport
         IdentityFile $HOME/.ssh/${KEYNAME}.key
