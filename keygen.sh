@@ -119,6 +119,16 @@ keygen() {
 
     echo
     echo "-------------------------------------------------------------------"
+    echo "Add SSH key to SSH Agent" 
+    echo "-------------------------------------------------------------------"
+    # add SSH key to SSH Agent
+    echo "eval \"$(ssh-agent -s)\""
+    eval "$(ssh-agent -s)"
+    echo "ssh-add \"$HOME/.ssh/${KEYNAME}.key\""
+    ssh-add "$HOME/.ssh/${KEYNAME}.key"
+
+    echo
+    echo "-------------------------------------------------------------------"
     echo "Transfering ${KEYNAME}.key.pub to remote host"
     echo "-------------------------------------------------------------------"
     if [ -z "$_remoteh" ]; then
