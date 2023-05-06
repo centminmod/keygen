@@ -45,6 +45,13 @@ keygen() {
     _comment=$_input_comment
     _sshpass=$_input_sshpass
     _keyname=$_input_keyname
+    _unique_keyname=$_input_unique_keyname
+
+    # Modify the KEYNAME generation with the unique key name if provided
+    if [[ -n "$_unique_keyname" ]]; then
+      KEYNAME="${_unique_keyname}"
+    fi
+
     if [[ $_keytype = 'rsa' ]]; then
       KEYTYPE=$_keytype
       KEYOPT="-t rsa -b $RSA_KEYLENTGH"
@@ -73,7 +80,9 @@ keygen() {
       echo "-------------------------------------------------------------------"
       KEYNAME="$_keyname"
       # move existing key pair to still be able to use it
+      echo "mv $HOME/.ssh/${KEYNAME}.key $HOME/.ssh/${KEYNAME}-old.key"
       mv "$HOME/.ssh/${KEYNAME}.key" "$HOME/.ssh/${KEYNAME}-old.key"
+      echo "mv $HOME/.ssh/${KEYNAME}.key.pub $HOME/.ssh/${KEYNAME}-old.key.pub"
       mv "$HOME/.ssh/${KEYNAME}.key.pub" "$HOME/.ssh/${KEYNAME}-old.key.pub"
     else
       echo
@@ -81,9 +90,14 @@ keygen() {
       echo "Generating Private Key Pair..."
       echo "-------------------------------------------------------------------"
       while [ -f "$HOME/.ssh/${KEYNAME}.key" ]; do
-          NUM=$(echo "$KEYNAME" | awk -F 'y' '{print $2}')
+          NUM=$(echo "$KEYNAME" | tr -cd '[[:digit:]]') # Extract digits from the key name
           INCREMENT=$(echo $(($NUM+1)))
-          KEYNAME="my${INCREMENT}"
+          if [[ -n "$_unique_keyname" ]]; then
+              # Remove digits from the end of the _unique_keyname and add the incremented number
+              KEYNAME="$(echo "${_unique_keyname}" | sed 's/[[:digit:]]*$//')${INCREMENT}"
+          else
+              KEYNAME="my${INCREMENT}"
+          fi
       done
     fi
     if [ -z "$_comment" ]; then
@@ -295,6 +309,7 @@ case "$1" in
     _input_remoteu=$5
     _input_comment=$6
     _input_sshpass=$7
+    _input_unique_keyname=$8
     keygen
     exit
         ;;
@@ -305,6 +320,7 @@ case "$1" in
     _input_remoteu=$5
     _input_comment=$6
     _input_keyname=$7
+    _input_unique_keyname=$8
     keygen rotate
     exit
         ;;
@@ -317,9 +333,17 @@ case "$1" in
     echo
     echo "  $0 {gen} keytype remoteip remoteport remoteuser keycomment remotessh_password"
     echo
+    echo "  or"
+    echo
+    echo "  $0 {gen} keytype remoteip remoteport remoteuser keycomment remotessh_password unique_keyname_filename"
+    echo
     echo "-------------------------------------------------------------------------"
     echo "  $0 {rotatekeys}"
     echo "  $0 {rotatekeys} keytype remoteip remoteport remoteuser keycomment keyname"
+    echo
+    echo "or"
+    echo
+    echo "  $0 {rotatekeys} keytype remoteip remoteport remoteuser keycomment \"\" unique_keyname_filename"
     echo
     echo "-------------------------------------------------------------------------"
     echo "  keytype supported: rsa, ecdsa, ed25519"

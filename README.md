@@ -1,3 +1,16 @@
+description
+===
+
+This script generates and manages SSH keys for different types of encryption algorithms (RSA, ECDSA, and ED25519). It takes various command-line arguments to generate new keys, rotate existing keys, and set up the SSH configuration file for seamless access to remote hosts.
+
+Key functionalities include:
+
+1. Generating new SSH keys with or without a passphrase.
+2. Rotating SSH keys, replacing the old key on the remote server with a new one.
+3. Logging key generation and rotation processes.
+4. Creating an entry in the SSH configuration file for easy access to remote hosts.
+5. Providing a script to populate the remote server with the same generated SSH key.
+
 install
 ===
 
@@ -20,21 +33,31 @@ You can use `gen` command to generate SSH key pairs or use `rotatekeys` command 
 
 Where remote server's SSH password is optionally set via `remotessh_password`
 
-    ./keygen.sh 
-    -------------------------------------------------------------------------
-    ./keygen.sh {gen}
-    ./keygen.sh {gen} keytype remoteip remoteport remoteuser keycomment
-    
-    or
-    
-    ./keygen.sh {gen} keytype remoteip remoteport remoteuser keycomment remotessh_password
-    
-    -------------------------------------------------------------------------
-    ./keygen.sh {rotatekeys}
-    ./keygen.sh {rotatekeys} keytype remoteip remoteport remoteuser keycomment keyname
-    
-    -------------------------------------------------------------------------
-    keytype supported: rsa, ecdsa, ed25519
+```
+./keygen.sh 
+-------------------------------------------------------------------------
+  ./keygen.sh {gen}
+  ./keygen.sh {gen} keytype remoteip remoteport remoteuser keycomment
+
+  or
+
+  ./keygen.sh {gen} keytype remoteip remoteport remoteuser keycomment remotessh_password
+
+  or
+
+  ./keygen.sh {gen} keytype remoteip remoteport remoteuser keycomment remotessh_password unique_keyname_filename
+
+-------------------------------------------------------------------------
+  ./keygen.sh {rotatekeys}
+  ./keygen.sh {rotatekeys} keytype remoteip remoteport remoteuser keycomment keyname
+
+or
+
+  ./keygen.sh {rotatekeys} keytype remoteip remoteport remoteuser keycomment "" unique_keyname_filename
+
+-------------------------------------------------------------------------
+  keytype supported: rsa, ecdsa, ed25519
+```
 
 cleanup
 ===
